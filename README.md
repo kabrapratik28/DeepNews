@@ -8,7 +8,6 @@ DeepNews is a high-level news generating tool, written in Python and capable of 
 
 ## Getting started
 
-- - - -
 
 ### Installing
 
@@ -30,6 +29,7 @@ DeepNews in written on top of Python and Keras, ThensorFlow and Theano.
 
 >Amazon AWS 
 (All libraries are installed in the AMI image)
+
 * G2 or P2 (GPU) based instances
 * [Amazon Machine Image AMI](https://aws.amazon.com/marketplace/pp/B06VSPXKDX)
 * GPU configuration are enabled (by default)
@@ -38,3 +38,39 @@ Neural networks are computations heavy, GPU configuration is recommended.
 
 - - - -
 
+### Getting Started
+
+`Import` model
+
+```python
+from deepnews import *
+```
+
+`Train` model
+
+```python
+#Fill code to train new dataset
+```
+
+`Test` model
+
+```python
+#Fill code to test new dataset
+```
+
+Using `Pretrained` model
+```python
+#Fill code on how to use pretrained model
+```
+
+`Evaluate` Model
+```python
+#Fill code on how to use evaluate results
+```
+
+`Text Preprocessing`
+```python
+#Fill code on how to use text preprocessing
+```
+
+In the examples folder of the repository, you will find more examples.
