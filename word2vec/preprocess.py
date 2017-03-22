@@ -13,7 +13,15 @@ class Preprocess_Text(object):
         if not os.path.exists(temp_results):
             os.makedirs(temp_results)
         self.raw_file_name = os.path.join(temp_results,raw_file_name)        
-        
+    
+    def is_this_string(self,s):
+        if isinstance(s, str):
+            return True
+        elif isinstance(s, unicode):
+            return True
+        else:
+            return False
+    
     def parse_xml(self,file_name):
         headline = ""
         text = ""
@@ -30,8 +38,9 @@ class Preprocess_Text(object):
         return (headline, text)
         
     def tokenize(self,data_string):
-        text = data_string
-        tokens=re.split(u'[ abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`\-=~!@#$%^&*()_+\[\]{};\'\\:"|<,./<>?]|\n|।', text)
+        if(not self.is_this_string(data_string)):
+            data_string = ""
+        tokens=re.split(u'[ abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`\-=~!@#$%^&*()_+\[\]{};\'\\:"|<,./<>?]|\n|।', data_string)
         tokens=filter(None,tokens)
         return tokens
 
