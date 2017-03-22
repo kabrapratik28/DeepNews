@@ -17,13 +17,16 @@ class Preprocess_Text(object):
     def parse_xml(self,file_name):
         headline = ""
         text = ""
-        root = ET.parse(file_name)
-        nodeHL = root.find('HL')
-        nodeText = root.find('TEXT')
-        if nodeHL!=None:    
-            headline = nodeHL.text
-        if nodeText!=None:  
-            text = nodeText.text
+        try:
+            root = ET.parse(file_name)
+            nodeHL = root.find('HL')
+            nodeText = root.find('TEXT')
+            if nodeHL!=None:    
+                headline = nodeHL.text
+            if nodeText!=None:  
+                text = nodeText.text
+        except:
+            print("Error in file ",file_name)
         return (headline, text)
         
     def tokenize(self,data_string):
@@ -48,7 +51,7 @@ class Preprocess_Text(object):
                     single_news = u" ".join(headline_tokens) + u" ".join(text_tokens) + "\n"
                     f.write(single_news)
                     count = count + 1
-                    if count%100000==0:
+                    if count%10000==0:
                         print ("Processing done till ",count, "time took ",time.time()-start_time)
 
 def main():
