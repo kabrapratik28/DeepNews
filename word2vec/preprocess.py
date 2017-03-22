@@ -18,15 +18,19 @@ class Preprocess_Text(object):
         headline = ""
         text = ""
         root = ET.parse(file_name)
-        headline = root.find('HL').text
-        text = root.find('TEXT').text
+        nodeHL = root.find('HL')
+        nodeText = root.find('TEXT')
+        if nodeHL!=None:    
+            headline = nodeHL.text
+        if nodeText!=None:  
+            text = nodeText.text
         return (headline, text)
         
     def tokenize(self,data_string):
         text = data_string
         tokens=re.split(u'[ abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`\-=~!@#$%^&*()_+\[\]{};\'\\:"|<,./<>?]|\n|।', text)
         tokens=filter(None,tokens)
-        return [ x for x in tokens]
+        return tokens
 
     def generate_raw_file(self,):
         count = 0 
