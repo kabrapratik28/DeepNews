@@ -14,7 +14,7 @@ Patrika                   - http://www.patrika.com/
 Economic Times Hindi      - http://hindi.economictimes.indiatimes.com/
 Divya Himachal            - http://www.divyahimachal.com/
 Zee News                  - http://zeenews.india.com/hindi
-Abpnews	                  - http://abpnews.abplive.in/
+Abpnews                   - http://abpnews.abplive.in/
 Khabar NDTV               - https://khabar.ndtv.com/
 News18 Hindi              - http://hindi.news18.com/
 BBC hindi                 - http://www.bbc.com/hindi
