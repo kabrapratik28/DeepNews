@@ -123,7 +123,9 @@ sudo pip install genesim
 ऑस्ट्रेलिया 0.47489964962
 ```
 
-`To look above data in neat format, please write it in a file` Look at example shown in [this code](https://github.com/kabrapratik28/DeepNews/blob/master/word2vec/train.py#L28)
+`To look above data in neat format, please write it in a file` Look at example shown in [this code](https://github.com/kabrapratik28/DeepNews/blob/master/word2vec/train.py#L28)  
+
+
 
 `similarity score example`
 ```python
@@ -131,8 +133,33 @@ sudo pip install genesim
 >>> सिंह
 ```
 
-statics on which trained
-    no of unique tokens, no of tokens, no of articles and retio etc el.
-    tsne picture
+For more examples look at genesim [page here](https://radimrehurek.com/gensim/models/word2vec.html).
 
-Glove Reference for English
+Dataset Statics
+
+### FIRE Dataset stats
+
+| features                                                                                              | values              |
+|-------------------------------------------------------------------------------------------------------|---------------------|
+| no of articles                                                                                        | 2,97,965            |
+| no of tokens                                                                                          | 85,940,081 (85.94M) |
+| no of unique tokens in articles                                                                       | 3,88,449            |
+| no of unique tokens in headlines                                                                      | 58,448              |
+| avg length of article                                                                                 | 272                 |
+| avg length of headline                                                                                | 7                   |
+| size of dataset                                                                                       | 1.06GB              |
+| avg. of (ratio len(article)/len(headline)) (Behind 43 words of description,  headline contain 1 word) | 43                  |
+
+
+### Crawled Dataset stats
+
+| features                                                                                              | values              |
+|-------------------------------------------------------------------------------------------------------|---------------------|
+| no of articles                                                                                        |                     |
+| no of tokens                                                                                          |                     |
+| no of unique tokens in articles                                                                       |                     |
+| no of unique tokens in headlines                                                                      |                     |
+| avg length of article                                                                                 |                     |
+| avg length of headline                                                                                |                     |
+| size of dataset                                                                                       |                     |
+| avg. of (ratio len(article)/len(headline)) (Behind 43 words of description,  headline contain 1 word) |                     |
