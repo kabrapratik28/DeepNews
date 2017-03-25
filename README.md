@@ -38,7 +38,7 @@ Neural networks are computations heavy, GPU configuration is recommended.
 
 - - - -
 
-### Getting Started
+### Deep News
 
 `Import` model
 
@@ -74,3 +74,65 @@ Using `Pretrained` model
 ```
 
 In the examples folder of the repository, you will find more examples.
+
+- - - -
+
+## Word2Vec (Hindi Language)
+
+
+### Pretrained word2vec
+
+>Word2Vec pretrained model weights
+
+* [Model Weights (zip)](https://drive.google.com/open?id=0Bw35nAjs4lJbN3lhaFR4NDlSdWs)  
+
+>Dataset 
+
+* We trained our word2vec model from two sources of data. We crawled Indian news websites to collect hindi news. Another dataset we gathered from Forum for Information Retrieveal Evaluation  ([FIRE](http://fire.irsi.res.in/fire/2016/home)). We are releasing our dataset for further use. To get FIRE dataset, contact to orgnization on provided URL above. 
+* Data contains one news per line. One news contain Headline and its description. * Head and Description is seprated by special `#|#` tag. (Note we didn't use space or comma as seperator as they can come in news.)
+* [Data (zip)](https://drive.google.com/open?id=0Bw35nAjs4lJbRlliVVFMQ0hHUVk)  
+* [Fire Dataset Website](http://fire.irsi.res.in/)
+* [Seed list](https://github.com/kabrapratik28/DeepNews/blob/master/data/seed_list.txt)
+
+>Loading word2vec 
+
+`Install Genesim`
+```python
+sudo pip install genesim
+```
+
+`Using Pretrained word2vec model` Download above zip and put unzip file in same folder where your code is present.
+
+```python
+>>> from gensim.models.keyedvectors import KeyedVectors
+>>> model = KeyedVectors.load_word2vec_format("word2vec_hindi.txt", binary=False)
+>>> print model.most_similar(u"भारत")
+
+#DON'T WORRY IF YOU SEE SOME HAPHAZARD STRINGS
+#TO SEE IN NICE WAY, write this strings to file via codecs
+>>>
+भारतीय 0.544360220432
+चीन 0.516659975052
+‘भारत 0.514147996902
+अमेरिका 0.506355285645
+भ्राात 0.503696322441
+पाकिस्तान 0.502107143402
+श्रीलंका 0.497614085674
+भारतीयों 0.482981711626
+कोरिया 0.482506453991
+ऑस्ट्रेलिया 0.47489964962
+```
+
+`To look above data in neat format, please write it in a file` Look at example shown in [this code](https://github.com/kabrapratik28/DeepNews/blob/master/word2vec/train.py#L28)
+
+`similarity score example`
+```python
+>>> model.doesnt_match(u"भारत चीन सिंह अमेरिका".split())
+>>> सिंह
+```
+
+statics on which trained
+    no of unique tokens, no of tokens, no of articles and retio etc el.
+    tsne picture
+
+Glove Reference for English
