@@ -44,7 +44,7 @@ class Preprocess_Text(object):
         tokens=filter(None,tokens)
         return tokens
 
-    def generate_raw_file(self,):
+    def generate_raw_file(self,is_separator=False):
         count = 0 
         start_time = time.time()
         with codecs.open(self.raw_file_name, "w", encoding="utf-8") as f:
@@ -56,8 +56,11 @@ class Preprocess_Text(object):
                         continue
                     headline, text = self.parse_xml(file_path)
                     headline_tokens =  self.tokenize(headline)
-                    text_tokens = self.tokenize(text)                    
-                    single_news = u" ".join(headline_tokens) + u" ".join(text_tokens) + "\n"
+                    text_tokens = self.tokenize(text)  
+                    if is_separator==False:
+                        single_news = u" ".join(headline_tokens) + u" ".join(text_tokens) + "\n"
+                    else:
+                        single_news = u" ".join(headline_tokens) + u"#|#" + u" ".join(text_tokens) + "\n"
                     f.write(single_news)
                     count = count + 1
                     if count%10000==0:
@@ -66,6 +69,9 @@ class Preprocess_Text(object):
 def main():
     process_data = Preprocess_Text()
     process_data.generate_raw_file()
+    annotate_data = Preprocess_Text(raw_file_name='annotated_news_text.txt')
+    annotate_data.generate_raw_file(True)
+
     
 if __name__ == "__main__":
     main()
