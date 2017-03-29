@@ -133,6 +133,10 @@ sudo pip install genesim
 >>> सिंह
 ```
 
+`Hindi Word Similarity Plot`
+![Alt text](/word2vec/Scatter_Plot.jpg?raw=true "Hindi Word Similarity")
+
+
 For more examples look at genesim [page here](https://radimrehurek.com/gensim/models/word2vec.html).
 
 Dataset Statics
