@@ -133,4 +133,11 @@ class train(object):
             #No drop out added !
             
         return model
-            
+
+if __name__ == '__main__':
+    t = train()
+    t.read_word_embedding()
+    X,y = t.read_data_files()
+    #TODO: Testing purpose
+    nb_val_samples=3
+    X_train, X_test, Y_train, Y_test  =t.split_test_train()
