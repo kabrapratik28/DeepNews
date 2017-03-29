@@ -7,7 +7,7 @@ import time
 import xml.etree.ElementTree as ET
 
 class Preprocess_Text(object):
-    def __init__(self,directory_name='../../Data',temp_results='../../temp_results',raw_file_name='raw_news_text.txt'):
+    def __init__(self,directory_name='../../data',temp_results='../../temp_results',raw_file_name='raw_news_text.txt'):
         self.directory_name = directory_name
         self.temp_results = temp_results
         if not os.path.exists(temp_results):

@@ -7,7 +7,7 @@ import os
 from preprocess import Preprocess_Text
 
 class Preprocess_Crawl_Text(Preprocess_Text):
-    def __init__(self,directory_name='../../Data',temp_results='../../temp_results',raw_file_name='crawled_news_text.txt'):
+    def __init__(self,directory_name='../../data',temp_results='../../temp_results',raw_file_name='crawled_news_text.txt'):
         Preprocess_Text.__init__(self,directory_name,temp_results,raw_file_name)
         
     def generate_crawl_raw_file(self,):
