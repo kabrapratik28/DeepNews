@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 
     
 temp_results='../../temp_results'
-raw_file_name='annotated_news_text.txt'
+raw_file_name='raw_news_annotated.txt'
 file_path = os.path.join(temp_results,raw_file_name)
 textfile = codecs.open(file_path, "r", "utf-8")   
 
@@ -35,10 +35,15 @@ count_articles=0
 
 #lines = [line for line in textfile]
 #first_lines = lines[0:5]
-
+heads = []
+arts = []
 for line in textfile:
     article = line.split('#|#')[1]
     headline = line.split('#|#')[0]
+    
+    heads.append(headline)
+    arts.append(article)
+    
     
     article = article.split(' ')
     headline = headline.split(' ')
@@ -81,9 +86,36 @@ words = [u" "+word for (word,freq) in most_frequent_words ]
 freq =  [freq for (word,freq) in most_frequent_words]  
 
 
+plt.plot([article_word_freq[w] for w,v in article_word_freq_sorted])
+plt.gca().set_xscale("log", nonposx='clip')
+plt.gca().set_yscale("log", nonposy='clip')
+plt.title('word distribution in Articles')
+plt.gca().set_xlabel('rank')
+plt.gca().set_ylabel('total appearances')
+plt.savefig('Word_Distribution in Articles.jpg')
 
 
 
+X = [[token for token in article.split()] for article in arts]
+Y = [[token for token in headline.split()] for headline in heads]
+
+plt.hist(map(len,Y),bins=50,rwidth=0.5);
+axes = plt.gca()
+axes.set_xlabel("Length of headline")
+axes.set_ylabel("Number of headlines")
+axes.set_title("Length of headline histogram")
+axes.set_xlim([0,17])
+plt.savefig('Length_Headline_Histogram.jpg')
+
+
+
+plt.hist(map(len,X),bins=5000,rwidth=0.15);
+axes = plt.gca()
+axes.set_xlabel("Length of Article")
+axes.set_ylabel("Number of Articles")
+axes.set_title("Length of Article histogram")
+axes.set_xlim([25,1000])
+plt.savefig('Length_Article_Histogram.jpg')
 
 
 
