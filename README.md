@@ -134,8 +134,11 @@ sudo pip install genesim
 ```
 
 `Hindi Word Similarity Plot`
-![Alt text](/word2vec/Scatter_Plot.jpg?raw=true "Hindi Word Similarity")
+![Alt text](https://github.com/ykedia/DeepNews/blob/master/word2vec/Scatter_Plot.JPG)
 
+
+`Hindi Word Similarity Translated Plot`
+![Alt text](https://github.com/ykedia/DeepNews/blob/master/word2vec/Scatter_Plot_Translated.JPG)
 
 For more examples look at genesim [page here](https://radimrehurek.com/gensim/models/word2vec.html).
 
