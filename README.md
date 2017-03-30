@@ -134,17 +134,17 @@ sudo pip install genesim
 ```
 
 `Hindi Word Similarity Plot`
-![Alt text](./word2vec/Scatter_Plot.JPG)
+![Hindi Word Similarity Plot](./word2vec/Scatter_Plot.JPG)
 
 `Hindi Word Similarity Translated Plot`
-![Scatter_Plot](./word2vec/Scatter_Plot_Translated.jpg)
+![Hindi Word Similarity Translated Plot](./word2vec/Scatter_Plot_Translated.JPG)
 
 `Length of article histogram`
 ![Statistics Plot](./statistics_calculator/Length_Article_Histogram.jpg)
 
 For more examples look at genesim [page here](https://radimrehurek.com/gensim/models/word2vec.html).
 
-Dataset Statics
+`Dataset Statistics`
 
 ### FIRE Dataset stats
 
