@@ -1,12 +1,17 @@
 import numpy as np
 import random
+
+import keras.backend as K
 from keras.preprocessing import sequence
 from keras.models import Sequential
 from keras.layers.core import Dense, Activation, Dropout, RepeatVector
 from keras.layers.wrappers import TimeDistributed
 from keras.layers.recurrent import LSTM
 from keras.layers.embeddings import Embedding
-from sklearn.model_selection import train_test_split
+from keras.layers.core import Lambda
+
+from sklearn.cross_validation import train_test_split
+
 seed = 21
 random.seed(seed)
 np.random.seed(seed)
@@ -17,6 +22,8 @@ embedding_dimension = 300
 max_length=25
 rnn_layers = 3
 rnn_size = 512
+empty_tag_location = 0 
+eos_tag_location = 1
 
 class train(object):
     def __init__(self,):
@@ -25,15 +32,15 @@ class train(object):
         self.word2idx = {}
         
         #initalize end of sentence and empty
-        self.word2idx['<empty>'] = 0
-        self.word2idx['<eos>'] = 1
-        self.word2idx[0] = '<empty>'
-        self.word2idx[1] = '<eos>'
+        self.word2idx['<empty>'] = empty_tag_location
+        self.word2idx['<eos>'] = eos_tag_location
+        self.word2idx[empty_tag_location] = '<empty>'
+        self.word2idx[eos_tag_location] = '<eos>'
         
         #TODO: ADD <empty>, <eos> vectors
         #TODO: store/load this dictionaries from pickle
         
-    def read_word_embedding(self,file_name='../../temp_results/word2vec_hindi_sample.txt'):
+    def read_word_embedding(self,file_name='../../temp_results/word2vec_hindi.txt'):
         """
         read word embedding file and assign indexes to word
         """
@@ -60,8 +67,18 @@ class train(object):
         for i in range(length_vocab):
             if i in temp_word2vec_dict:
                 self.word2vec[i,:] = temp_word2vec_dict[i]
+    
+    def padding(self,list_idx,is_left_pad):
+        """
+        padds with <empty> tag in left/right side
+        """
+        #<eos> remanied to attach therefore (max_length-1)
+        if len(list_idx)>=max_length-1:
+            return list_idx
+        number_of_empty_fill = max_length-1-len(list_idx)
+        return [empty_tag_location,] * number_of_empty_fill + list_idx
         
-    def sentence2idx(self,sentence, max_length=25):
+    def sentence2idx(self,sentence, is_headline, max_length=25):
         """
         given a sentence convert it to its ids
         "I like India" => [12, 51, 102]
@@ -74,11 +91,20 @@ class train(object):
             if each_token in self.word2idx:
                 list_idx.append(self.word2idx[each_token])
                 count = count + 1
-                if count>=max_length:
+                if count>=max_length-1:
                     break
+        
+        #filled 24 words by above method ....
+        #add <eos> tag in the end
         
         #TODO: left padding and right padding according to
         #head line or desc
+        if not is_headline:
+            #desc padded left
+            list_idx = self.padding(list_idx,is_left_pad=True)
+            
+        #TODO: add eos in the end
+        list_idx = list_idx + [eos_tag_location,]
         
         return list_idx
     
@@ -92,10 +118,10 @@ class train(object):
             for each_line in fp:
                 each_line = each_line.strip()
                 headline, desc = each_line.split(seperator)
-                headline_idx = self.sentence2idx(headline)
-                desc_idx = self.sentence2idx(desc)
-                X.append(headline_idx)
-                y.append(desc_idx)
+                headline_idx = self.sentence2idx(headline,is_headline=True)
+                desc_idx = self.sentence2idx(desc,is_headline=False)
+                X.append(desc_idx)
+                y.append(headline_idx)
         return (X,y)
     
     def split_test_train(self,X,y):
@@ -125,7 +151,6 @@ class train(object):
         
         for i in range(rnn_layers):
             lstm = LSTM(rnn_size, return_sequences=True,
-                dropout=0, recurrent_dropout=0,
                 name='lstm_layer_%d'%(i+1)
             )
             
@@ -140,4 +165,7 @@ if __name__ == '__main__':
     X,y = t.read_data_files()
     #TODO: Testing purpose
     nb_val_samples=3
-    X_train, X_test, Y_train, Y_test  =t.split_test_train()
+    X_train, X_test, Y_train, Y_test  =t.split_test_train(X,y)
+    print ("splits took place ",len(X_train), len(Y_train), len(X_test), len(Y_test))
+    model = t.create_model()
+    
