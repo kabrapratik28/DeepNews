@@ -2,9 +2,8 @@ import numpy as np
 import random
 
 import keras.backend as K
-from keras.preprocessing import sequence
 from keras.models import Sequential
-from keras.layers.core import Dense, Activation, Dropout, RepeatVector
+from keras.layers.core import Dense
 from keras.layers.wrappers import TimeDistributed
 from keras.layers.recurrent import LSTM
 from keras.layers.embeddings import Embedding
@@ -14,6 +13,7 @@ from sklearn.cross_validation import train_test_split
 
 """
 Tutorial on Keras Backend
+=========================
 import numpy as np
 p=np.array([[[1,2],],])
 q=np.array([ [[1,2],[3,4]] ])
@@ -93,10 +93,10 @@ class train(object):
         """
         padds with <empty> tag in left/right side
         """
-        #<eos> remanied to attach therefore (curr_max_length-1)
-        if len(list_idx)>=curr_max_length-1:
+        #<eos> remanied to attach
+        if len(list_idx)>=curr_max_length:
             return list_idx
-        number_of_empty_fill = curr_max_length-1-len(list_idx)
+        number_of_empty_fill = curr_max_length-len(list_idx)
         if is_left_pad:
             return [empty_tag_location,] * number_of_empty_fill + list_idx
         else:
@@ -116,7 +116,7 @@ class train(object):
             if each_token in self.word2idx:
                 list_idx.append(self.word2idx[each_token])
                 count = count + 1
-                if count>=curr_max_length-1:
+                if count>=curr_max_length:
                     break
         
         #filled 24 words by above method ....
@@ -200,7 +200,12 @@ class train(object):
         return K.concatenate((desc_avg_word, head_words))
     
     def create_model(self,):
-        
+        """
+        RNN model creation
+        Layers include Embedding Layer, 3 LSTM stacked, 
+        Simple Context layer (manually defined),
+        Time Distributed Layer
+        """
         length_vocab, embedding_size = self.word2vec.shape
         print ("shape of word2vec matrix ",self.word2vec.shape)
         
@@ -237,7 +242,46 @@ class train(object):
         K.set_value(model.optimizer.lr,np.float32(learning_rate))
         print (model.summary())
         return model
-
+    
+    def flip_words_randomly(description_headline_data, number_words_to_replace, model):
+        """
+        Given actual data i.e. description + eos + headline + eos
+        1. It predicts news headline (model try to predict, sort of training phase)
+        2. From actual headline, replace some of the words, 
+        with most probable predication word at that location
+        3.return description + eos + headline(randomly some replaced words) + eos
+        (take care of eof and empty should not get replaced) 
+        """
+        if number_words_to_replace<=0 or model==None:
+            return description_headline_data
+        
+        #check all descrption ends with <eos> tag else throw error
+        assert np.all(description_headline_data[:,max_len_desc]==eos_tag_location)
+        
+        batch_size = len(description_headline_data)
+        predicated_headline_word_idx = model.predict(description_headline_data,verbose=0, batch_size=batch_size)
+        copy_data = description_headline_data.copy() 
+        for idx in range(batch_size):
+            # description = 0 ... max_len_desc-1
+            # <eos> = max_len_desc
+            # headline = max_len_desc + 1 ... 
+            random_flip_pos = sorted(random.sample(xrange(max_len_desc+1,max_length), number_words_to_replace))
+            for replace_idx in random_flip_pos:
+                #Don't replace <eos> and <empty> tag 
+                if (description_headline_data[idx, replace_idx] ==  empty_tag_location or  
+                description_headline_data[idx, replace_idx] == eos_tag_location):
+                    continue
+                
+                #replace_idx offset moving as predication doesnot have desc
+                new_id = replace_idx - (max_len_desc+1)
+                prob_words = predicated_headline_word_idx[idx, new_id]
+                word_idx = prob_words.argmax()
+                #dont replace by empty location
+                if word_idx == empty_tag_location:
+                    continue
+                copy_data[idx, replace_idx] = word_idx
+        return copy_data
+                
 if __name__ == '__main__':
     t = train()
     t.read_word_embedding()
