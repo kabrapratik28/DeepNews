@@ -8,6 +8,7 @@ from keras.layers.wrappers import TimeDistributed
 from keras.layers.recurrent import LSTM
 from keras.layers.embeddings import Embedding
 from keras.layers.core import Lambda
+from keras.utils import np_utils
 
 from sklearn.cross_validation import train_test_split
 
@@ -89,25 +90,59 @@ class train(object):
             if i in temp_word2vec_dict:
                 self.word2vec[i,:] = temp_word2vec_dict[i]
     
-    def padding(self, list_idx, is_left_pad, curr_max_length):
+    def padding(self, list_idx, curr_max_length, is_left):
         """
-        padds with <empty> tag in left/right side
+        padds with <empty> tag in left side
         """
-        #<eos> remanied to attach
         if len(list_idx)>=curr_max_length:
             return list_idx
         number_of_empty_fill = curr_max_length-len(list_idx)
-        if is_left_pad:
+        if is_left:
             return [empty_tag_location,] * number_of_empty_fill + list_idx
         else:
-            assert 1==2
-            #TODO: right padding 
+            return list_idx + [empty_tag_location,] * number_of_empty_fill
             
-    def sentence2idx(self,sentence, is_headline, curr_max_length):
+    def headline2idx(self,list_idx, curr_max_length, is_input):
+        """
+        if space add <eos> tag in input case, input size = curr_max_length-1
+        always add <eos> tag in predication case, size = curr_max_length
+        always right pad
+        """
+        if is_input:
+            if len(list_idx)>=curr_max_length-1:
+                return list_idx[:curr_max_length]
+            else:
+                #space remaning add eos and empty tags
+                list_idx = list_idx + [eos_tag_location,]  
+                return self.padding(list_idx,curr_max_length-1,False)
+        else:
+            #always add <eos>
+            if len(list_idx)==curr_max_length:
+                list_idx[-1]=eos_tag_location
+                return list_idx
+            else:
+                #space remaning add eos and empty tags
+                list_idx = list_idx + [eos_tag_location,]
+                return self.padding(list_idx,curr_max_length,False)
+        
+    def desc2idx(self, list_idx, curr_max_length):
+        """
+        always left pad and eos tag to end
+        """
+        #desc padded left
+        list_idx = self.padding(list_idx,curr_max_length,True)
+        #eos tag add
+        list_idx = list_idx + [eos_tag_location,]        
+        return list_idx
+        
+    
+    def sentence2idx(self,sentence, is_headline, curr_max_length, is_input=True):
         """
         given a sentence convert it to its ids
         "I like India" => [12, 51, 102]
         words not present in vocab igonre them
+        
+        is_input is only for headlines
         """
         list_idx = []
         tokens = sentence.split(" ")
@@ -119,34 +154,31 @@ class train(object):
                 if count>=curr_max_length:
                     break
         
-        #filled 24 words by above method ....
-        #add <eos> tag in the end
+        if is_headline:
+            return self.headline2idx(list_idx, curr_max_length, is_input)           
+        else:
+            return self.desc2idx(list_idx, curr_max_length)
         
-        #TODO: left padding and right padding according to
-        #head line or desc
-        if not is_headline:
-            #desc padded left
-            list_idx = self.padding(list_idx,True,curr_max_length)
-            
-        #TODO: add eos in the end
-        list_idx = list_idx + [eos_tag_location,]
-        
-        return list_idx
-    
-    def read_data_files(self,file_name='../../temp_results/raw_news_text.txt',seperator='#|#'):
+    def read_small_data_files(self,file_name='../../temp_results/raw_news_text.txt',seperator='#|#'):
         """
         Assumes one line contatin "headline seperator description"
         """
-        X = []
-        y = []
+        X,y = [],[]
         with open(file_name) as fp:
             for each_line in fp:
                 each_line = each_line.strip()
                 headline, desc = each_line.split(seperator)
-                headline_idx = self.sentence2idx(headline,True,max_len_head)
+                input_headline_idx = self.sentence2idx(headline,True,max_len_head,True)
+                predicated_headline_idx = self.sentence2idx(headline,True,max_len_head,False)
                 desc_idx = self.sentence2idx(desc,False,max_len_desc)
-                X.append(desc_idx)
-                y.append(headline_idx)
+                #assert size checks
+                assert len(input_headline_idx)==max_len_head-1
+                assert len(predicated_headline_idx)==max_len_head
+                assert len(desc_idx)==max_len_desc+1
+                
+                X.append(desc_idx+input_headline_idx)
+                y.append(predicated_headline_idx)
+                
         return (X,y)
     
     def split_test_train(self,X,y):
@@ -243,7 +275,7 @@ class train(object):
         print (model.summary())
         return model
     
-    def flip_words_randomly(description_headline_data, number_words_to_replace, model):
+    def flip_words_randomly(self,description_headline_data, number_words_to_replace, model):
         """
         Given actual data i.e. description + eos + headline + eos
         1. It predicts news headline (model try to predict, sort of training phase)
@@ -281,11 +313,48 @@ class train(object):
                     continue
                 copy_data[idx, replace_idx] = word_idx
         return copy_data
-                
+    
+    def convert_inputs(self,descriptions,headlines,number_words_to_replace,model):
+        """
+        convert input to suitable format
+        1.Left pad descriptions with <empty> tag
+        2.Add <eos> tag
+        3.Right padding with <empty> tag after (desc+headline)
+        4.input headline doesnot contain <eos> tag
+        5.expected/predicated headline contain <eos> tag
+        6.One hot endoing for expected output
+        """
+        #length of headlines and descriptions should be equal
+        assert len(descriptions) == len(headlines)
+        
+        X,y = [],[]
+        for each_desc,each_headline in zip(descriptions,headlines):
+            input_headline_idx = self.sentence2idx(each_headline,True,max_len_head,True)
+            predicated_headline_idx = self.sentence2idx(each_headline,True,max_len_head,False)
+            desc_idx = self.sentence2idx(each_desc,False,max_len_desc)
+            
+            #assert size checks
+            assert len(input_headline_idx)==max_len_head-1
+            assert len(predicated_headline_idx)==max_len_head
+            assert len(desc_idx)==max_len_desc+1
+            
+            X.append(desc_idx+input_headline_idx)
+            y.append(predicated_headline_idx)
+        
+        X,y = np.array(X), np.array(y)
+        X = self.flip_headline(X, number_words_to_replace, model)        
+        #One hot encoding of y
+        vocab_size=self.word2vec.shape[0]
+        length_of_data = len(headlines)
+        Y = np.zeros((length_of_data, max_len_head, vocab_size))
+        for i, each_y in enumerate(y):
+            Y[i,:,:]= np_utils.to_categorical(each_y, vocab_size)
+        return X,Y
+        
 if __name__ == '__main__':
     t = train()
     t.read_word_embedding()
-    X,y = t.read_data_files()
+    X,y = t.read_small_data_files()
     #TODO: Testing purpose
     nb_val_samples=3
     X_train, X_test, Y_train, Y_test = t.split_test_train(X,y)
