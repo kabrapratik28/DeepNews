@@ -56,8 +56,8 @@ class train(object):
         #initalize end of sentence and empty
         self.word2idx['<empty>'] = empty_tag_location
         self.word2idx['<eos>'] = eos_tag_location
-        self.word2idx[empty_tag_location] = '<empty>'
-        self.word2idx[eos_tag_location] = '<eos>'
+        self.idx2word[empty_tag_location] = '<empty>'
+        self.idx2word[eos_tag_location] = '<eos>'
         
         #TODO: ADD <empty>, <eos> vectors
         #TODO: store/load this dictionaries from pickle
@@ -68,6 +68,12 @@ class train(object):
         """
         idx = 2
         temp_word2vec_dict = {}
+        #TODO: <empty>, <eos> vectors initializations?
+        #<empty>, <eos> tag replaced by word2vec learning 
+        #create random dimensional vector for empty and eos
+        temp_word2vec_dict['<empty>'] = [float(i) for i in np.random.rand(embedding_dimension,1)]
+        temp_word2vec_dict['<eos>'] = [float(i) for i in np.random.rand(embedding_dimension,1)]
+        
         with open(file_name) as fp:
             for each_line in fp:
                 word_embedding_data = each_line.split(" ")
@@ -79,9 +85,7 @@ class train(object):
                 idx = idx + 1
                 if idx%10000 == 0:
                     print ("working on word2vec ... idx ",idx)
-                    
-        #TODO: <empty>, <eos> vectors initializations?
-        
+                            
         length_vocab = len(temp_word2vec_dict)
         shape = (length_vocab,embedding_dimension)
         #faster initlization and random for <empty> and <eos> tag
@@ -110,7 +114,7 @@ class train(object):
         """
         if is_input:
             if len(list_idx)>=curr_max_length-1:
-                return list_idx[:curr_max_length]
+                return list_idx[:curr_max_length-1]
             else:
                 #space remaning add eos and empty tags
                 list_idx = list_idx + [eos_tag_location,]  
@@ -188,7 +192,7 @@ class train(object):
         X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=nb_val_samples, random_state=seed)
         return (X_train, X_test, Y_train, Y_test)
 
-    def output_shape_simple_context_layer(input_shape):
+    def output_shape_simple_context_layer(self,input_shape):
         """
         Take input shape tuple and return tuple for output shape
         Output shape size for simple context layer = 
@@ -263,7 +267,7 @@ class train(object):
         
         model.add(Lambda(self.simple_context,
                      mask = lambda inputs, mask: mask[:,max_len_desc:],
-                     output_shape = lambda input_shape: (input_shape[0], max_len_head, 2*(rnn_size - activation_rnn_size)),
+                     output_shape = self.output_shape_simple_context_layer,
                      name='simple_context_layer'))
         
         vocab_size=self.word2vec.shape[0]
@@ -342,7 +346,7 @@ class train(object):
             y.append(predicated_headline_idx)
         
         X,y = np.array(X), np.array(y)
-        X = self.flip_headline(X, number_words_to_replace, model)        
+        X = self.flip_words_randomly(X, number_words_to_replace, model)        
         #One hot encoding of y
         vocab_size=self.word2vec.shape[0]
         length_of_data = len(headlines)
@@ -350,7 +354,31 @@ class train(object):
         for i, each_y in enumerate(y):
             Y[i,:,:]= np_utils.to_categorical(each_y, vocab_size)
         return X,Y
-        
+    
+    def large_file_reading_generator(self,file_name):
+        """
+        read large file line by line
+        """
+        while True:
+            with open(file_name) as file_pointer:
+                for each_line in file_pointer:
+                    yield each_line.strip()
+            #TODO: shuffle file lines for next epoch
+            
+    def data_generator(self, file_name, batch_size, number_words_to_replace, model, seperator='#|#'):
+        """
+        read large file in chunks and return chunk of data to train on
+        """
+        file_iterator = iter(self.large_file_reading_generator(file_name))
+        while True:
+            X,y=[],[]
+            for i in xrange(batch_size):
+                each_line = next(file_iterator)                    
+                desc, headline = each_line.split(seperator)
+                X.append(desc)
+                y.append(headline)
+            yield self.convert_inputs(X,y,number_words_to_replace,model)
+
 if __name__ == '__main__':
     t = train()
     t.read_word_embedding()
@@ -360,5 +388,12 @@ if __name__ == '__main__':
     X_train, X_test, Y_train, Y_test = t.split_test_train(X,y)
     print ("splits took place ",len(X_train), len(Y_train), len(X_test), len(Y_test))
     model = t.create_model()
-    data = np.array([[1,]*50,])
-    probs = model.predict(data,verbose=2)
+    #data = np.array([[1,]*50,])
+    #probs = model.predict(data,verbose=2)
+    count = 5
+    print "bacth coming in shape of ... "
+    for X,y in t.data_generator('../../temp_results/raw_news_text.txt',3,0,model):
+        print X.shape, y.shape
+        count = count - 1
+        if count ==0:
+            break
