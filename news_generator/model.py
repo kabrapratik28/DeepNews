@@ -66,7 +66,13 @@ class news_rnn(object):
         self.cache_validation_data = None
         # TODO: make model as part of self.model
         # TODO: store/load this dictionaries from pickle
-
+    
+    def file_line_counter(self,file_name):
+        with open(file_name) as f:
+            for i, l in tqdm(enumerate(f)):
+                pass
+        return i+1
+    
     def read_word_embedding(self, file_name='../../temp_results/word2vec_hindi.txt'):
         """
         read word embedding file and assign indexes to word
@@ -419,6 +425,8 @@ class news_rnn(object):
     def blue_score_calculator(self, model,validation_file_name,validation_step_size, number_words_to_replace):
         if self.cache_validation_data == None:
             print ("validation data creating ...")
+            #In validation don't repalce with random words
+            number_words_to_replace=0
             temp_gen = self.data_generator(validation_file_name, validation_step_size, number_words_to_replace, model)        
             print("caching validation data ... ")
             self.cache_validation_data = {}
@@ -505,23 +513,18 @@ class news_rnn(object):
                 pickle.dump(blue_scores, output_file)
 
 if __name__ == '__main__':
+    
+    data_file_name='../../temp_results/train_corpus.txt'
+    validation_file_name='../../temp_results/validation_corpus.txt'
+    
     t = news_rnn()
     t.read_word_embedding()
-    X, y = t.read_small_data_files()
-    # TODO: Testing purpose
-    nb_val_samples = 3
-    X_train, X_test, Y_train, Y_test = t.split_test_train(X, y)
-    print ("splits took place ", len(X_train), len(Y_train), len(X_test), len(Y_test))
     model = t.create_model()
-    # data = np.array([[1,]*50,])
-    # probs = model.predict(data,verbose=2)
-    """
-    count = 5
-    print "bacth coming in shape of ... "
-    for X, y in t.data_generator('../../temp_results/raw_news_text.txt', 3, 0, model):
-        print X.shape, y.shape
-        count = count - 1
-        if count == 0:
-            break
-    """
-    print t.blue_score_calculator(model,'../../temp_results/validation_news_text.txt',6, 0)
+    t.train(model=model, 
+            data_file_name=data_file_name, 
+            validation_file_name=validation_file_name, 
+            no_of_training_sample=t.file_line_counter(data_file_name), 
+            train_batch_size=500, 
+            validation_step_size=t.file_line_counter(validation_file_name), 
+            no_of_epochs=28, 
+            number_words_to_replace=2)
