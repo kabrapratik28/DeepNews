@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 import random
 import cPickle as pickle
 import numpy as np
-
+import codecs
 
 import keras.backend as K
 from keras.models import Sequential
@@ -68,7 +69,7 @@ class news_rnn(object):
         # TODO: store/load this dictionaries from pickle
     
     def file_line_counter(self,file_name):
-        with open(file_name) as f:
+        with codecs.open(file_name, 'r',encoding='utf8') as f:
             for i, l in tqdm(enumerate(f)):
                 pass
         return i+1
@@ -85,7 +86,7 @@ class news_rnn(object):
         temp_word2vec_dict['<empty>'] = [float(i) for i in np.random.rand(embedding_dimension, 1)]
         temp_word2vec_dict['<eos>'] = [float(i) for i in np.random.rand(embedding_dimension, 1)]
 
-        with open(file_name) as fp:
+        with codecs.open(file_name,'r',encoding='utf8') as fp:
             for each_line in fp:
                 word_embedding_data = each_line.split(" ")
                 word = word_embedding_data[0]
@@ -173,28 +174,6 @@ class news_rnn(object):
             return self.headline2idx(list_idx, curr_max_length, is_input)
         else:
             return self.desc2idx(list_idx, curr_max_length)
-
-    def read_small_data_files(self, file_name='../../temp_results/raw_news_text.txt', seperator='#|#'):
-        """
-        Assumes one line contatin "headline seperator description"
-        """
-        X, y = [], []
-        with open(file_name) as fp:
-            for each_line in fp:
-                each_line = each_line.strip()
-                headline, desc = each_line.split(seperator)
-                input_headline_idx = self.sentence2idx(headline, True, max_len_head, True)
-                predicated_headline_idx = self.sentence2idx(headline, True, max_len_head, False)
-                desc_idx = self.sentence2idx(desc, False, max_len_desc)
-                # assert size checks
-                assert len(input_headline_idx) == max_len_head - 1
-                assert len(predicated_headline_idx) == max_len_head
-                assert len(desc_idx) == max_len_desc + 1
-
-                X.append(desc_idx + input_headline_idx)
-                y.append(predicated_headline_idx)
-
-        return (X, y)
 
     def split_test_train(self, X, y):
         """
@@ -368,12 +347,34 @@ class news_rnn(object):
         assert len(X)==len(Y)
         return X, Y
 
+    def read_small_data_files(self, file_name='../../temp_results/raw_news_text.txt', seperator='#|#'):
+        """
+        Assumes one line contatin "headline seperator description"
+        """
+        X, y = [], []
+        with codecs.open(file_name,'r',encoding='utf8') as fp:
+            for each_line in fp:
+                each_line = each_line.strip()
+                headline, desc = each_line.split(seperator)
+                input_headline_idx = self.sentence2idx(headline, True, max_len_head, True)
+                predicated_headline_idx = self.sentence2idx(headline, True, max_len_head, False)
+                desc_idx = self.sentence2idx(desc, False, max_len_desc)
+                # assert size checks
+                assert len(input_headline_idx) == max_len_head - 1
+                assert len(predicated_headline_idx) == max_len_head
+                assert len(desc_idx) == max_len_desc + 1
+
+                X.append(desc_idx + input_headline_idx)
+                y.append(predicated_headline_idx)
+
+        return (X, y)
+
     def large_file_reading_generator(self, file_name):
         """
         read large file line by line
         """
         while True:
-            with open(file_name) as file_pointer:
+            with codecs.open(file_name,'r',encoding='utf8') as file_pointer:
                 for each_line in file_pointer:
                     yield each_line.strip()
             # TODO: shuffle file lines for next epoch
