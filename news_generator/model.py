@@ -65,7 +65,6 @@ class news_rnn(object):
         self.idx2word[empty_tag_location] = '<empty>'
         self.idx2word[eos_tag_location] = '<eos>'
 
-        self.cache_validation_data = None
         # TODO: make model as part of self.model
         # TODO: store/load this dictionaries from pickle
     
@@ -193,7 +192,7 @@ class news_rnn(object):
 
         that is 2 * (rnn_size - activation_rnn_size))
 
-        input_shape[0] = batch_szie remains as it is
+        input_shape[0] = batch_size remains as it is
         maxlenh =
         """
         return (input_shape[0], max_len_head , 2 * (rnn_size - activation_rnn_size))
@@ -424,39 +423,16 @@ class news_rnn(object):
                 each_headline_words.append(self.idx2word[each_word])
             list_of_word_headline.append(each_headline_words)            
         return list_of_word_headline
-
-    def blue_score_calculator(self, model,validation_file_name,validation_step_size, number_words_to_replace):
-        if self.cache_validation_data == None:
-            print ("validation data creating ...")
-            #In validation don't repalce with random words
-            number_words_to_replace=0
-            temp_gen = self.data_generator(validation_file_name, validation_step_size, number_words_to_replace, model)        
-            print("caching validation data ... ")
-            self.cache_validation_data = {}
-            for X_val, y_val in temp_gen:
-                self.cache_validation_data["X_val"] = X_val
-                self.cache_validation_data["y_val"] = y_val
-                
-                list_of_word_headline = self.indexes_to_words(self.OHE_to_indexes(y_val))
-                self.cache_validation_data["word_headlines"]=list_of_word_headline
-                assert len(y_val)==len(list_of_word_headline)    
-                #get out of infinite loop of val generator
-                break
-
-            #close files and delete generator  
-            del temp_gen
-            
-        #Found cache ... 
-        #64 examples processed each batch ... 
-        y_predicated = model.predict_classes(self.cache_validation_data["X_val"],batch_size=64)
+    
+    def blue_score_text(self,y_actual,y_predicated):
+        #check length equal
+        assert len(y_actual) ==  len(y_predicated)
         #list of healine .. each headline has words
-        y_predicated_words = self.indexes_to_words(y_predicated)
-        assert len(self.cache_validation_data["word_headlines"]) ==  len(y_predicated_words)
-        no_of_news = len(self.cache_validation_data["word_headlines"])
+        no_of_news = len(y_actual)
         blue_score = 0.0
         for i in range(no_of_news):
-            reference = self.cache_validation_data["word_headlines"][i]
-            hypothesis = y_predicated_words[i]
+            reference = y_actual[i]
+            hypothesis = y_predicated[i]
             
             #Avoid ZeroDivisionError in blue score
             #default weights
@@ -469,40 +445,69 @@ class news_rnn(object):
             
             blue_score = blue_score + sentence_bleu([reference],hypothesis,weights=weights)
         
-        return blue_score/no_of_news
+        return blue_score/float(no_of_news)
 
-    def train(self, model, data_file_name, validation_file_name, no_of_training_sample, train_batch_size, validation_step_size, no_of_epochs, number_words_to_replace):
+
+    def blue_score_calculator(self, model, validation_file_name, no_of_validation_sample, validation_step_size):
+        #In validation don't repalce with random words
+        number_words_to_replace=0
+        temp_gen = self.data_generator(validation_file_name, validation_step_size, number_words_to_replace, model)        
+        
+        total_blue_score = 0.0            
+        blue_batches = 0            
+        for X_val, y_val in temp_gen:
+            y_predicated = model.predict_classes(X_val,batch_size=validation_step_size)
+            y_predicated_words = self.indexes_to_words(y_predicated)
+            list_of_word_headline = self.indexes_to_words(self.OHE_to_indexes(y_val))
+            assert len(y_val)==len(list_of_word_headline) 
+
+            total_blue_score = total_blue_score + self.blue_score_text(list_of_word_headline, y_predicated_words)
+            
+            blue_batches += 1
+            if blue_batches >= no_of_validation_sample / validation_step_size :
+                #get out of infinite loop of val generator
+                break
+
+        #close files and delete generator  
+        del temp_gen
+        return total_blue_score/float(blue_batches)          
+
+    def train(self, model, data_file_name, validation_file_name, no_of_training_sample, train_batch_size, no_of_validation_sample, validation_step_size, no_of_epochs, number_words_to_replace):
         """
         trains a model
         Manually loop (without using internal epoch parameter of keras),
         train model for each epoch, evaluate logloss and BLUE score of model on validation data
         save model if BLUE/logloss score improvement ...
         save score history for plotting purposes.
+        Note : validation step size meaning over here is different from keras
+        here validation_step_size means, batch_size in which blue score evaluated
+        after all batches processed, blue scores over all batches averaged to get one blue score.
         """
         data_generator = self.data_generator(data_file_name, train_batch_size, number_words_to_replace, model)
-        validation_generator = self.data_generator(validation_file_name, validation_step_size, number_words_to_replace, model)
         
-        histories = {}
         blue_scores = []
-        count_history=0
         #blue score are always greater than 0
         best_blue_score_track = -1.0
         for each_epoch in range(no_of_epochs):
             print ("running for epoch ",each_epoch)
             start_time = time.time()
-            history = model.fit_generator(
-                        data_generator,
-                        steps_per_epoch=no_of_training_sample / train_batch_size,
-                        epochs=1,
-                        validation_data=validation_generator, validation_steps=validation_step_size
-                    )
+            
+            #manually loop over batches and feed to network
+            #purposefully not used fit_generator
+            batches = 0
+            for X_batch, Y_batch in data_generator:
+                model.fit(X_batch,Y_batch,batch_size=train_batch_size,epochs=1)
+                batches += 1
+                #take last chunk and roll over to start ...
+                #therefore float used ... 
+                if batches >= no_of_training_sample / float(train_batch_size) :
+                    break
+                    
             end_time = time.time()
             print("time to train epoch ",end_time-start_time)
-            histories[count_history] = [history.history['loss'][0],		
-                                        history.history['val_loss'][0]]
 
             # evaluate model on BLUE score and save best BLUE score model...
-            blue_score_now = self.blue_score_calculator(model,validation_file_name,validation_step_size,number_words_to_replace)
+            blue_score_now = self.blue_score_calculator(model,validation_file_name,no_of_validation_sample,validation_step_size)
             blue_scores.append(blue_score_now)
             if best_blue_score_track < blue_score_now:
                 best_blue_score_track = blue_score_now
@@ -515,11 +520,8 @@ class news_rnn(object):
             # User can track previous history while model running ... 
             # dump history object list for further plotting of loss
             # append BLUE Score for to another list  and dump for futher plotting
-            with open("../../temp_results/histories.pickle", "wb") as output_file:
-                pickle.dump(histories, output_file)
             with open("../../temp_results/blue_scores.pickle", "wb") as output_file:
                 pickle.dump(blue_scores, output_file)
-            count_history = count_history + 1
 
 if __name__ == '__main__':
     
@@ -533,7 +535,8 @@ if __name__ == '__main__':
             data_file_name=data_file_name, 
             validation_file_name=validation_file_name, 
             no_of_training_sample=t.file_line_counter(data_file_name), 
-            train_batch_size=1024, 
-            validation_step_size=t.file_line_counter(validation_file_name), 
-            no_of_epochs=28, 
+            train_batch_size=32,
+            no_of_validation_sample=t.file_line_counter(validation_file_name),
+            validation_step_size=32, 
+            no_of_epochs=16, 
             number_words_to_replace=2)
