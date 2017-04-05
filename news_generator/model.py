@@ -3,6 +3,7 @@ import random
 import cPickle as pickle
 import numpy as np
 import codecs
+import time
 
 import keras.backend as K
 from keras.models import Sequential
@@ -72,6 +73,7 @@ class news_rnn(object):
         with codecs.open(file_name, 'r',encoding='utf8') as f:
             for i, l in tqdm(enumerate(f)):
                 pass
+        print (file_name," contains ",i+1," lines.")
         return i+1
     
     def read_word_embedding(self, file_name='../../temp_results/word2vec_hindi.txt'):
@@ -383,7 +385,7 @@ class news_rnn(object):
         """
         read large file in chunks and return chunk of data to train on
         """
-        file_iterator = iter(self.large_file_reading_generator(file_name))
+        file_iterator = self.large_file_reading_generator(file_name)
         while True:
             X, y = [], []
             for i in xrange(batch_size):
@@ -445,8 +447,8 @@ class news_rnn(object):
             del temp_gen
             
         #Found cache ... 
-        #100 examples processed each batch ... 
-        y_predicated = model.predict_classes(self.cache_validation_data["X_val"],batch_size=100)
+        #64 examples processed each batch ... 
+        y_predicated = model.predict_classes(self.cache_validation_data["X_val"],batch_size=64)
         #list of healine .. each headline has words
         y_predicated_words = self.indexes_to_words(y_predicated)
         assert len(self.cache_validation_data["word_headlines"]) ==  len(y_predicated_words)
@@ -480,27 +482,32 @@ class news_rnn(object):
         data_generator = self.data_generator(data_file_name, train_batch_size, number_words_to_replace, model)
         validation_generator = self.data_generator(validation_file_name, validation_step_size, number_words_to_replace, model)
         
-        histories = []
+        histories = {}
         blue_scores = []
+        count_history=0
         #blue score are always greater than 0
         best_blue_score_track = -1.0
         for each_epoch in range(no_of_epochs):
             print ("running for epoch ",each_epoch)
+            start_time = time.time()
             history = model.fit_generator(
                         data_generator,
                         steps_per_epoch=no_of_training_sample / train_batch_size,
                         epochs=1,
                         validation_data=validation_generator, validation_steps=validation_step_size
                     )
-            histories.append(history)
+            end_time = time.time()
+            print("time to train epoch ",end_time-start_time)
+            histories[count_history] = [history.history['loss'][0],		
+                                        history.history['val_loss'][0]]
 
             # evaluate model on BLUE score and save best BLUE score model...
-            blue_score_now = self.blue_score_calculator(model,validation_file_name,validation_step_size)
+            blue_score_now = self.blue_score_calculator(model,validation_file_name,validation_step_size,number_words_to_replace)
             blue_scores.append(blue_score_now)
             if best_blue_score_track < blue_score_now:
                 best_blue_score_track = blue_score_now
                 print ("saving model for blue score ",best_blue_score_track)
-                model.save('../../temp_results/deep_news_model_weights.h5')
+                model.save_weights('../../temp_results/deep_news_model_weights.h5')
                 
             # Note : It saves on every loop, this looks REPETATIVE, BUT
             # if user aborts(control-c) in middle of epochs then we get previous
@@ -512,6 +519,7 @@ class news_rnn(object):
                 pickle.dump(histories, output_file)
             with open("../../temp_results/blue_scores.pickle", "wb") as output_file:
                 pickle.dump(blue_scores, output_file)
+            count_history = count_history + 1
 
 if __name__ == '__main__':
     
@@ -525,7 +533,7 @@ if __name__ == '__main__':
             data_file_name=data_file_name, 
             validation_file_name=validation_file_name, 
             no_of_training_sample=t.file_line_counter(data_file_name), 
-            train_batch_size=500, 
+            train_batch_size=1024, 
             validation_step_size=t.file_line_counter(validation_file_name), 
             no_of_epochs=28, 
             number_words_to_replace=2)
