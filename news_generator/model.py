@@ -3,6 +3,7 @@ import random
 import cPickle as pickle
 import numpy as np
 import codecs
+import math
 import time
 
 import keras.backend as K
@@ -400,9 +401,8 @@ class news_rnn(object):
         OHE => indexes
         e.g. [[0,0,1],[1,0,0]] => [2,0]
         """
-        print ("Converting OHE to indexes")
         list_of_headline = []
-        for each_headline in tqdm(y_val):
+        for each_headline in y_val:
             list_of_word_indexes = np.where(np.array(each_headline)==1)[1]
             list_of_headline.append(list(list_of_word_indexes))
         return list_of_headline
@@ -412,9 +412,8 @@ class news_rnn(object):
         indexes => words (for BLUE Score)
         e.g. [2,0] => ["I","am"] (idx2word defined dictionary used)
         """
-        print ("Converting indexes to words")
         list_of_word_headline = []
-        for each_headline in tqdm(list_of_headline):
+        for each_headline in list_of_headline:
             each_headline_words = []
             for each_word in each_headline:
                 #Dont include <eos> and <empty> tags
@@ -454,7 +453,8 @@ class news_rnn(object):
         temp_gen = self.data_generator(validation_file_name, validation_step_size, number_words_to_replace, model)        
         
         total_blue_score = 0.0            
-        blue_batches = 0            
+        blue_batches = 0
+        blue_number_of_batches = no_of_validation_sample / validation_step_size
         for X_val, y_val in temp_gen:
             y_predicated = model.predict_classes(X_val,batch_size=validation_step_size)
             y_predicated_words = self.indexes_to_words(y_predicated)
@@ -464,9 +464,11 @@ class news_rnn(object):
             total_blue_score = total_blue_score + self.blue_score_text(list_of_word_headline, y_predicated_words)
             
             blue_batches += 1
-            if blue_batches >= no_of_validation_sample / validation_step_size :
+            if blue_batches >=  blue_number_of_batches:
                 #get out of infinite loop of val generator
                 break
+            if blue_batches%10==0:
+                print ("eval for {} out of {}".format(blue_batches, blue_number_of_batches))
 
         #close files and delete generator  
         del temp_gen
@@ -488,6 +490,8 @@ class news_rnn(object):
         blue_scores = []
         #blue score are always greater than 0
         best_blue_score_track = -1.0
+        number_of_batches = math.ceil(no_of_training_sample / float(train_batch_size))
+        
         for each_epoch in range(no_of_epochs):
             print ("running for epoch ",each_epoch)
             start_time = time.time()
@@ -500,8 +504,10 @@ class news_rnn(object):
                 batches += 1
                 #take last chunk and roll over to start ...
                 #therefore float used ... 
-                if batches >= no_of_training_sample / float(train_batch_size) :
+                if batches >= number_of_batches :
                     break
+                if batches%10==0:
+                    print ("training for {} out of {} for epoch {}".format(batches, number_of_batches, each_epoch))
                     
             end_time = time.time()
             print("time to train epoch ",end_time-start_time)
