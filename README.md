@@ -188,3 +188,22 @@ For more examples look at genesim [page here](https://radimrehurek.com/gensim/mo
 | avg length of headline                                                                                |                     |
 | size of dataset                                                                                       |                     |
 | avg. of (ratio len(article)/len(headline)) (Behind 43 words of description,  headline contain 1 word) |                     |
+
+### Number of Crawled Articles per source
+
+| News Website      | Number of Articles |
+|-------------------|--------------------|
+| Aaj Tak           | 92765              |
+| ABP News          | 13654              |
+| Amar Ujala        | 181                |
+| BBC Hindi         | 28861              |
+| Deshbandhu        | 3174               |
+| Economic Times    | 993                |
+| Jagran            | 73290              |
+| Navbharat Times   | 10329              |
+| NDTV              | 92942              |
+| News18            | 38833              |
+| Patrika           | 68288              |
+| Punjab Kesari     | 15494              |
+| Rajasthan Patrika | 89038              |
+| Zee News          | 10463              |
