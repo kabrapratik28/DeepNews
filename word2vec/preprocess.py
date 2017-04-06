@@ -12,7 +12,8 @@ class Preprocess_Text(object):
         self.temp_results = temp_results
         if not os.path.exists(temp_results):
             os.makedirs(temp_results)
-        self.raw_file_name = os.path.join(temp_results,raw_file_name)        
+        self.raw_file_name = os.path.join(temp_results,raw_file_name)
+        self.eos_tag = '<eos>'        
     
     def is_this_string(self,s):
         if isinstance(s, str):
@@ -57,10 +58,10 @@ class Preprocess_Text(object):
                     headline, text = self.parse_xml(file_path)
                     headline_tokens =  self.tokenize(headline)
                     text_tokens = self.tokenize(text)  
-                    if is_separator==False:
-                        single_news = u" ".join(headline_tokens) + u" ".join(text_tokens) + "\n"
-                    else:
+                    if is_separator:
                         single_news = u" ".join(headline_tokens) + u"#|#" + u" ".join(text_tokens) + "\n"
+                    else:
+                        single_news = u" ".join(headline_tokens) + u" ".join(text_tokens) + " " + self.eos_tag + "\n"
                     f.write(single_news)
                     count = count + 1
                     if count%10000==0:
