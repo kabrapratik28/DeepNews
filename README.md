@@ -201,9 +201,9 @@ For more examples look at genesim [page here](https://radimrehurek.com/gensim/mo
 | Economic Times    | 993                | www.hindi.economictimes.indiatimes.com |
 | Jagran            | 73290              | www.jagran.com                         |
 | Navbharat Times   | 10329              | www.navbharattimes.indiatimes.com      |
-| NDTV              | 92942              | khabar.ndtv.com/news/                  |
+| NDTV              | 92942              | www.khabar.ndtv.com/news/              |
 | News18            | 38833              | www.news18.com                         |
 | Patrika           | 68288              | www.patrika.com                        |
 | Punjab Kesari     | 15494              | www.punjabkesari.in                    |
 | Rajasthan Patrika | 89038              | www.rajasthanpatrika.patrika.com       |
-| Zee News          | 10463              | zeenews.india.com/hindi                |
+| Zee News          | 10463              | www.zeenews.india.com/hindi            |
