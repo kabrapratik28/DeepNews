@@ -541,8 +541,8 @@ if __name__ == '__main__':
             data_file_name=data_file_name, 
             validation_file_name=validation_file_name, 
             no_of_training_sample=t.file_line_counter(data_file_name), 
-            train_batch_size=32,
+            train_batch_size=64,
             no_of_validation_sample=t.file_line_counter(validation_file_name),
-            validation_step_size=32, 
+            validation_step_size=64, 
             no_of_epochs=16, 
             number_words_to_replace=2)
