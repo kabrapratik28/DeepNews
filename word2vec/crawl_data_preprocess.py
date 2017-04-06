@@ -12,14 +12,14 @@ class Preprocess_Crawl_Text(Preprocess_Text):
 
 
     def parse_line_article(self, line):
-        line = line.split("#|#")
+        line = line.strip().split("#|#")
         if(len(line)<2 or len(line[0])==0 or len(line[1])==0):
         	return (None, None)        
         headline = line[0]
         text = line[1]
         return (headline,text)
         
-    def generate_crawl_raw_file(self,):
+    def generate_crawl_raw_file(self,is_separator=False):
         count = 0 
         malformed_articles= 0
         start_time = time.time()
@@ -37,7 +37,10 @@ class Preprocess_Crawl_Text(Preprocess_Text):
                             if headline and text:
                                 headline_tokens = self.tokenize(headline)
                                 text_tokens = self.tokenize(text)
-                                single_news_article = u" ".join(headline_tokens) + u"#|#" + u" ".join(text_tokens) + "\n"
+                                if is_separator:
+                                    single_news_article = u" ".join(headline_tokens) + u"#|#" + u" ".join(text_tokens) + "\n"
+                                else:
+                                    single_news_article = u" ".join(headline_tokens) + u" ".join(text_tokens) + " " + self.eos_tag + "\n"
                                 f.write(single_news_article)
                             else:
                                 malformed_articles = malformed_articles + 1
@@ -49,6 +52,8 @@ class Preprocess_Crawl_Text(Preprocess_Text):
 def main():
     process_crawl_data = Preprocess_Crawl_Text()
     process_crawl_data.generate_crawl_raw_file()
+    annotated_crawl_data = Preprocess_Crawl_Text(raw_file_name='annotated_crawled_news_text.txt')
+    annotated_crawl_data.generate_crawl_raw_file(True)
     
 if __name__ == "__main__":
     main()

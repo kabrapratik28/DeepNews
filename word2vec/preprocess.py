@@ -41,7 +41,7 @@ class Preprocess_Text(object):
     def tokenize(self,data_string):
         if(not self.is_this_string(data_string)):
             data_string = ""
-        tokens=re.split(u'[ abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`\-=~!@#$%^&*()_+\[\]{};\'\\:"|<,./<>?]|\n|।', data_string)
+        tokens=re.split(u'[ abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`\-=~!@#$%^&*()_+\[\]{};\'\\:"|<,./<>?‘’“”]|\n|।', data_string)
         tokens=filter(None,tokens)
         return tokens
 
