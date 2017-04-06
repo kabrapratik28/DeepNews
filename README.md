@@ -84,13 +84,13 @@ In the examples folder of the repository, you will find more examples.
 
 >Word2Vec pretrained model weights
 
-* [Model Weights (zip)](https://drive.google.com/open?id=0Bw35nAjs4lJbN3lhaFR4NDlSdWs)  
+* [Model Weights (zip)](https://drive.google.com/open?id=0Bw35nAjs4lJbeF9OMTByRmY2aTQ)  
 
 >Dataset 
 
 * We trained our word2vec model from two sources of data. We crawled Indian news websites to collect hindi news. Another dataset we gathered from Forum for Information Retrieveal Evaluation  ([FIRE](http://fire.irsi.res.in/fire/2016/home)). We are releasing our dataset for further use. To get FIRE dataset, contact to orgnization on provided URL above. 
 * Data contains one news per line. One news contain Headline and its description. * Head and Description is seprated by special `#|#` tag. (Note we didn't use space or comma as seperator as they can come in news.)
-* [Data (zip)](https://drive.google.com/open?id=0Bw35nAjs4lJbRlliVVFMQ0hHUVk)  
+* [Data (zip)](https://drive.google.com/open?id=0Bw35nAjs4lJbemlpLW13U2x5RHM)  
 * [Fire Dataset Website](http://fire.irsi.res.in/)
 * [Seed list](https://github.com/kabrapratik28/DeepNews/blob/master/data/seed_list.txt)
 
@@ -188,3 +188,22 @@ For more examples look at genesim [page here](https://radimrehurek.com/gensim/mo
 | avg length of headline                                                                                |                     |
 | size of dataset                                                                                       |                     |
 | avg. of (ratio len(article)/len(headline)) (Behind 43 words of description,  headline contain 1 word) |                     |
+
+### Number of Crawled Articles per source
+
+| News Website      | Number of Articles | URL                                                |
+|-------------------|--------------------|----------------------------------------------------|
+| Aaj Tak           | 92765              | http://www.aajtak.intoday.in                       |
+| ABP News          | 13654              | http://www.abpnews.abplive.in                      |
+| Amar Ujala        | 181                | http://www.amarujala.com                           |
+| BBC Hindi         | 28861              | http://bbc.com/hindi                               |
+| Deshbandhu        | 3174               | http://deshbandhu.co.in                            |
+| Economic Times    | 993                | http://hindi.economictimes.indiatimes.com          |
+| Jagran            | 73290              | http://www.jagran.com                              |
+| Navbharat Times   | 10329              | http://www.navbharattimes.indiatimes.com           |
+| NDTV              | 92942              | http://www.khabar.ndtv.com/news/                   |
+| News18            | 38833              | http://www.news18.com                              |
+| Patrika           | 68288              | http://www.patrika.com                             |
+| Punjab Kesari     | 15494              | http://www.punjabkesari.in                         |
+| Rajasthan Patrika | 89038              | http://www.rajasthanpatrika.patrika.com            |
+| Zee News          | 10463              | http://www.zeenews.india.com/hindi                 |
