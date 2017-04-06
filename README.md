@@ -84,13 +84,13 @@ In the examples folder of the repository, you will find more examples.
 
 >Word2Vec pretrained model weights
 
-* [Model Weights (zip)](https://drive.google.com/open?id=0Bw35nAjs4lJbN3lhaFR4NDlSdWs)  
+* [Model Weights (zip)](https://drive.google.com/open?id=0Bw35nAjs4lJbeF9OMTByRmY2aTQ)  
 
 >Dataset 
 
 * We trained our word2vec model from two sources of data. We crawled Indian news websites to collect hindi news. Another dataset we gathered from Forum for Information Retrieveal Evaluation  ([FIRE](http://fire.irsi.res.in/fire/2016/home)). We are releasing our dataset for further use. To get FIRE dataset, contact to orgnization on provided URL above. 
 * Data contains one news per line. One news contain Headline and its description. * Head and Description is seprated by special `#|#` tag. (Note we didn't use space or comma as seperator as they can come in news.)
-* [Data (zip)](https://drive.google.com/open?id=0Bw35nAjs4lJbRlliVVFMQ0hHUVk)  
+* [Data (zip)](https://drive.google.com/open?id=0Bw35nAjs4lJbemlpLW13U2x5RHM)  
 * [Fire Dataset Website](http://fire.irsi.res.in/)
 * [Seed list](https://github.com/kabrapratik28/DeepNews/blob/master/data/seed_list.txt)
 
