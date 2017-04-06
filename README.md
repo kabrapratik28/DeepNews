@@ -191,19 +191,19 @@ For more examples look at genesim [page here](https://radimrehurek.com/gensim/mo
 
 ### Number of Crawled Articles per source
 
-| News Website      | Number of Articles |
-|-------------------|--------------------|
-| Aaj Tak           | 92765              |
-| ABP News          | 13654              |
-| Amar Ujala        | 181                |
-| BBC Hindi         | 28861              |
-| Deshbandhu        | 3174               |
-| Economic Times    | 993                |
-| Jagran            | 73290              |
-| Navbharat Times   | 10329              |
-| NDTV              | 92942              |
-| News18            | 38833              |
-| Patrika           | 68288              |
-| Punjab Kesari     | 15494              |
-| Rajasthan Patrika | 89038              |
-| Zee News          | 10463              |
+| News Website      | Number of Articles | URL                                    |
+|-------------------|--------------------|----------------------------------------|
+| Aaj Tak           | 92765              | www.aajtak.intoday.in                  |
+| ABP News          | 13654              | www.abpnews.abplive.in                 |
+| Amar Ujala        | 181                | www.amarujala.com                      |
+| BBC Hindi         | 28861              | www.bbc.com/hindi                      |
+| Deshbandhu        | 3174               | www.deshbandhu.co.in                   |
+| Economic Times    | 993                | www.hindi.economictimes.indiatimes.com |
+| Jagran            | 73290              | www.jagran.com                         |
+| Navbharat Times   | 10329              | www.navbharattimes.indiatimes.com      |
+| NDTV              | 92942              | khabar.ndtv.com/news/                  |
+| News18            | 38833              | www.news18.com                         |
+| Patrika           | 68288              | www.patrika.com                        |
+| Punjab Kesari     | 15494              | www.punjabkesari.in                    |
+| Rajasthan Patrika | 89038              | www.rajasthanpatrika.patrika.com       |
+| Zee News          | 10463              | zeenews.india.com/hindi                |
