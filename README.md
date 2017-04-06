@@ -191,19 +191,19 @@ For more examples look at genesim [page here](https://radimrehurek.com/gensim/mo
 
 ### Number of Crawled Articles per source
 
-| News Website      | Number of Articles | URL                                        |
-|-------------------|--------------------|--------------------------------------------|
-| Aaj Tak           | 92765              | www.aajtak.intoday.in                      |
-| ABP News          | 13654              | www.abpnews.abplive.in                     |
-| Amar Ujala        | 181                | www.amarujala.com                          |
-| BBC Hindi         | 28861              | www.bbc.com/hindi                          |
-| Deshbandhu        | 3174               | www.deshbandhu.co.in                       |
-| Economic Times    | 993                | http://hindi.economictimes.indiatimes.com  |
-| Jagran            | 73290              | www.jagran.com                             |
-| Navbharat Times   | 10329              | www.navbharattimes.indiatimes.com          |
-| NDTV              | 92942              | www.khabar.ndtv.com/news/                  |
-| News18            | 38833              | www.news18.com                             |
-| Patrika           | 68288              | www.patrika.com                            |
-| Punjab Kesari     | 15494              | www.punjabkesari.in                        |
-| Rajasthan Patrika | 89038              | www.rajasthanpatrika.patrika.com           |
-| Zee News          | 10463              | www.zeenews.india.com/hindi                |
+| News Website      | Number of Articles | URL                                                |
+|-------------------|--------------------|----------------------------------------------------|
+| Aaj Tak           | 92765              | http://www.aajtak.intoday.in                       |
+| ABP News          | 13654              | http://www.abpnews.abplive.in                      |
+| Amar Ujala        | 181                | http://www.amarujala.com                           |
+| BBC Hindi         | 28861              | http://bbc.com/hindi                               |
+| Deshbandhu        | 3174               | http://deshbandhu.co.in                            |
+| Economic Times    | 993                | http://hindi.economictimes.indiatimes.com          |
+| Jagran            | 73290              | http://www.jagran.com                              |
+| Navbharat Times   | 10329              | http://www.navbharattimes.indiatimes.com           |
+| NDTV              | 92942              | http://www.khabar.ndtv.com/news/                   |
+| News18            | 38833              | http://www.news18.com                              |
+| Patrika           | 68288              | http://www.patrika.com                             |
+| Punjab Kesari     | 15494              | http://www.punjabkesari.in                         |
+| Rajasthan Patrika | 89038              | http://www.rajasthanpatrika.patrika.com            |
+| Zee News          | 10463              | http://www.zeenews.india.com/hindi                 |
