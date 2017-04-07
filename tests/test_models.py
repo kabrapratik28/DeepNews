@@ -13,6 +13,8 @@ class SimplisticTest(unittest.TestCase):
     
     @classmethod
     def setUpClass(cls):
+        #no_of_dimensions for word2vec
+        no_of_dimensions=300
         #called once only during testing time...
         print ("setting up files for test cases !")
         with codecs.open('../../temp_results/raw_news_text.txt','w',encoding='utf8') as fp:
@@ -32,12 +34,18 @@ class SimplisticTest(unittest.TestCase):
                 headline, text = each_line.split("#|#")
                 tokens.update(headline.split())
                 tokens.update(text.split())
-        tokens_word2vec = np.random.rand(len(tokens),300)
+        tokens_word2vec = np.random.rand(len(tokens),no_of_dimensions)
         df = pd.DataFrame({'word':list(tokens)})
         shape = tokens_word2vec.shape
         for i in range(shape[1]):
             df[i] = tokens_word2vec[:,i]
         df.to_csv('../../temp_results/word2vec_hindi.txt',sep=' ',header=None, index=False, encoding='utf-8')
+        #write header with number of words and dimensions
+        line=str(len(tokens))+" "+str(no_of_dimensions)
+        with open('../../temp_results/word2vec_hindi.txt', 'r+') as f:
+            content = f.read()
+            f.seek(0, 0)
+            f.write(line.strip() + '\n' + content)
         
     def setUp(self):
         #called one per test case ...
