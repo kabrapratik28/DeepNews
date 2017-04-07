@@ -12,7 +12,7 @@ from keras.layers.core import Dense
 from keras.layers.wrappers import TimeDistributed
 from keras.layers.recurrent import LSTM
 from keras.layers.embeddings import Embedding
-from keras.layers.core import Lambda
+from keras.layers.core import Lambda, Activation
 from keras.utils import np_utils
 
 from tqdm import tqdm
@@ -89,8 +89,10 @@ class news_rnn(object):
         temp_word2vec_dict['<eos>'] = [float(i) for i in np.random.rand(embedding_dimension, 1)]
 
         with codecs.open(file_name,'r',encoding='utf8') as fp:
+            #skip first line of word embedding as it contains following information
+            print("number of words and dimesions ",fp.readline().strip())
             for each_line in fp:
-                word_embedding_data = each_line.split(" ")
+                word_embedding_data = each_line.strip().split(" ")
                 word = word_embedding_data[0]
                 vector = [float(i) for i in word_embedding_data[1:]]
                 temp_word2vec_dict[idx] = vector
@@ -194,7 +196,7 @@ class news_rnn(object):
         that is 2 * (rnn_size - activation_rnn_size))
 
         input_shape[0] = batch_size remains as it is
-        maxlenh =
+        max_len_head = heading max length allowed
         """
         return (input_shape[0], max_len_head , 2 * (rnn_size - activation_rnn_size))
 
@@ -265,7 +267,8 @@ class news_rnn(object):
         vocab_size = self.word2vec.shape[0]
         model.add(TimeDistributed(Dense(vocab_size,
                                 name='time_distributed_layer')))
-
+        model.add(Activation('softmax', name='activation_layer'))
+        
         model.compile(loss='categorical_crossentropy', optimizer='adam')
         K.set_value(model.optimizer.lr, np.float32(learning_rate))
         print (model.summary())
