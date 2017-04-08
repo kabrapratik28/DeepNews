@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import random
-import cPickle as pickle
-import numpy as np
 import codecs
 import math
 import time
+import sys
+import cPickle as pickle
+import numpy as np
 
 import keras.backend as K
 from keras.models import Sequential
@@ -14,10 +15,13 @@ from keras.layers.recurrent import LSTM
 from keras.layers.embeddings import Embedding
 from keras.layers.core import Lambda, Activation
 from keras.utils import np_utils
+from keras.preprocessing import sequence
 
 from tqdm import tqdm
 from sklearn.cross_validation import train_test_split
 from nltk.translate.bleu_score import sentence_bleu
+from numpy import inf
+from operator import itemgetter
 
 """
 Tutorial on Keras Backend
@@ -267,6 +271,7 @@ class news_rnn(object):
         vocab_size = self.word2vec.shape[0]
         model.add(TimeDistributed(Dense(vocab_size,
                                 name='time_distributed_layer')))
+        
         model.add(Activation('softmax', name='activation_layer'))
         
         model.compile(loss='categorical_crossentropy', optimizer='adam')
@@ -313,7 +318,7 @@ class news_rnn(object):
                 copy_data[idx, replace_idx] = word_idx
         return copy_data
 
-    def convert_inputs(self, descriptions, headlines, number_words_to_replace, model):
+    def convert_inputs(self, descriptions, headlines, number_words_to_replace, model,is_training):
         """
         convert input to suitable format
         1.Left pad descriptions with <empty> tag
@@ -339,19 +344,24 @@ class news_rnn(object):
 
             X.append(desc_idx + input_headline_idx)
             y.append(predicated_headline_idx)
-
+        
         X, y = np.array(X), np.array(y)
-        X = self.flip_words_randomly(X, number_words_to_replace, model)
-        # One hot encoding of y
-        vocab_size = self.word2vec.shape[0]
-        length_of_data = len(headlines)
-        Y = np.zeros((length_of_data, max_len_head, vocab_size))
-        for i, each_y in enumerate(y):
-            Y[i, :, :] = np_utils.to_categorical(each_y, vocab_size)
-        #check equal lengths
-        assert len(X)==len(Y)
-        return X, Y
-
+        if is_training:
+            X = self.flip_words_randomly(X, number_words_to_replace, model)
+            # One hot encoding of y
+            vocab_size = self.word2vec.shape[0]
+            length_of_data = len(headlines)
+            Y = np.zeros((length_of_data, max_len_head, vocab_size))
+            for i, each_y in enumerate(y):
+                Y[i, :, :] = np_utils.to_categorical(each_y, vocab_size)
+            #check equal lengths
+            assert len(X)==len(Y)
+            return X, Y
+        else:
+            #Testing doesnot require OHE form of headline, flipping also not required
+            #Because BLUE score require words and not OHE form to check accuracy
+            return X,headlines
+        
     def read_small_data_files(self, file_name='../../temp_results/raw_news_text.txt', seperator='#|#'):
         """
         Assumes one line contatin "headline seperator description"
@@ -384,7 +394,7 @@ class news_rnn(object):
                     yield each_line.strip()
             # TODO: shuffle file lines for next epoch
 
-    def data_generator(self, file_name, batch_size, number_words_to_replace, model, seperator='#|#'):
+    def data_generator(self, file_name, batch_size, number_words_to_replace, model, seperator='#|#',is_training=True):
         """
         read large file in chunks and return chunk of data to train on
         """
@@ -393,10 +403,10 @@ class news_rnn(object):
             X, y = [], []
             for i in xrange(batch_size):
                 each_line = next(file_iterator)
-                desc, headline = each_line.split(seperator)
+                headline, desc = each_line.split(seperator)
                 X.append(desc)
                 y.append(headline)
-            yield self.convert_inputs(X, y, number_words_to_replace, model)
+            yield self.convert_inputs(X, y, number_words_to_replace, model,is_training)
 
     def OHE_to_indexes(self,y_val):
         """
@@ -477,7 +487,7 @@ class news_rnn(object):
         del temp_gen
         return total_blue_score/float(blue_batches)          
 
-    def train(self, model, data_file_name, validation_file_name, no_of_training_sample, train_batch_size, no_of_validation_sample, validation_step_size, no_of_epochs, number_words_to_replace):
+    def train(self, model, data_file_name, validation_file_name, no_of_training_sample, train_batch_size, no_of_validation_sample, validation_step_size, no_of_epochs, number_words_to_replace,model_weights_file_name):
         """
         trains a model
         Manually loop (without using internal epoch parameter of keras),
@@ -521,7 +531,7 @@ class news_rnn(object):
             if best_blue_score_track < blue_score_now:
                 best_blue_score_track = blue_score_now
                 print ("saving model for blue score ",best_blue_score_track)
-                model.save_weights('../../temp_results/deep_news_model_weights.h5')
+                model.save_weights(model_weights_file_name)
                 
             # Note : It saves on every loop, this looks REPETATIVE, BUT
             # if user aborts(control-c) in middle of epochs then we get previous
@@ -531,21 +541,165 @@ class news_rnn(object):
             # append BLUE Score for to another list  and dump for futher plotting
             with open("../../temp_results/blue_scores.pickle", "wb") as output_file:
                 pickle.dump(blue_scores, output_file)
-
+    
+    def is_headline_end(self, word_index_list, current_predication_position):
+        """
+        is headline ended checker
+        current_predication_position is 0 index based
+        """
+        if word_index_list==None or len(word_index_list)==0:
+            return False
+        if word_index_list[current_predication_position]==eos_tag_location or current_predication_position>=max_length:
+            return True
+        return False
+        
+    def process_word(self, predication, word_position_index, top_k, X, prev_layer_log_prob):
+        """
+        Extract top k predications of given position
+        """
+        #predication conttains only one element
+        #shape of predication (1,max_head_line_words,vocab_size)
+        predication = predication[0]
+        #predication (max_head_line_words,vocab_size)
+        predication_at_word_index = predication[word_position_index]
+        #http://stackoverflow.com/questions/6910641/how-to-get-indices-of-n-maximum-values-in-a-numpy-array
+        sorted_arg = predication_at_word_index.argsort()
+        top_probable_indexes = sorted_arg[-top_k:][::-1]
+        top_probabilities = np.take(predication_at_word_index,top_probable_indexes)
+        log_probabilities = np.log(top_probabilities)
+        #make sure elements doesnot contain -infinity
+        log_probabilities[log_probabilities == -inf] = -sys.maxint - 1
+        #add prev layer probability
+        log_probabilities = log_probabilities + prev_layer_log_prob
+        assert len(log_probabilities)==len(top_probable_indexes)
+        
+        #add previous words ... preparation for next input
+        #offset calculate ... description + eos + headline till now
+        offset = max_len_desc+word_position_index+1
+        ans = []
+        for i,j in zip(log_probabilities, top_probable_indexes):
+            next_input = np.concatenate((X[:offset], [j,]))
+            next_input = next_input.reshape((1,next_input.shape[0]))
+            #for the last time last word put at max_length + 1 position 
+            #don't truncate that
+            if offset!=max_length:
+                next_input = sequence.pad_sequences(next_input, maxlen=max_length, value=empty_tag_location, padding='post', truncating='post')
+            next_input = next_input[0]
+            ans.append((i,next_input))
+        #[(prob,list_of_words_as_next_input),(prob2,list_of_words_as_next_input2),...]
+        return ans
+        
+    def beam_search(self,model,X,top_k):
+        """
+        1.Loop over max headline word allowed
+        2.predict word prob and select top k words for each position
+        3.select top probable combination uptil now for next round
+        """
+        #contains [(log_p untill now, word_seq), (log_p2, word_seq2)]
+        prev_word_index_top_k = []
+        curr_word_index_top_k = []
+        done_with_pred = []
+        #1d => 2d array [1,2,3] => [[1,2,3]]
+        data = X.reshape((1,X.shape[0]))
+        #shape of predication (1,max_head_line_words,vocab_size)
+        predication = model.predict_proba(data,verbose=0)
+        #prev layer probability 1 => np.log(0)=0.0
+        prev_word_index_top_k = self.process_word(predication,0,top_k,X,0.0)
+        
+        #1st time its done above to fill prev word therefore started from 1
+        for i in range(1,max_len_head):
+            #i = represents current intrested layer ...
+            for j in range(len(prev_word_index_top_k)):
+                #j = each time loops for top k results ...
+                probability_now, current_intput = prev_word_index_top_k[j]
+                data = current_intput.reshape((1,current_intput.shape[0]))
+                predication = model.predict_proba(data,verbose=0)
+                next_top_k_for_curr_word = self.process_word(predication,i,top_k,current_intput,probability_now)
+                curr_word_index_top_k = curr_word_index_top_k + next_top_k_for_curr_word
+                
+            #sort new list, empty old, copy top k element to old, empty new
+            curr_word_index_top_k = sorted(curr_word_index_top_k,key=itemgetter(0),reverse=True)
+            prev_word_index_top_k_temp = curr_word_index_top_k[:top_k]
+            curr_word_index_top_k = []
+            prev_word_index_top_k = []
+            #if word predication eos ... put it done list ...
+            for each_proba, each_word_idx_list in prev_word_index_top_k_temp:
+                offset = max_len_desc+i+1
+                if self.is_headline_end(each_word_idx_list,offset):
+                    done_with_pred.append((each_proba, each_word_idx_list))
+                else:
+                    prev_word_index_top_k.append((each_proba,each_word_idx_list))
+            
+        #sort according to most probable
+        done_with_pred = sorted(done_with_pred,key=itemgetter(0),reverse=True)
+        done_with_pred = done_with_pred[:top_k]
+        return done_with_pred
+            
+    def test(self, model, data_file_name, no_of_testing_sample, model_weights_file_name,top_k,output_file,seperator='#|#'):
+        """
+        test on given description data file with empty headline ...
+        """
+        model.load_weights(model_weights_file_name)
+        print ("model weights loaded")
+        #Always 1 for now ... later batch code for test sample created
+        test_batch_size = 1
+        data_generator = self.data_generator(data_file_name, test_batch_size, number_words_to_replace=0, model=None,is_training=False)
+        number_of_batches = math.ceil(no_of_testing_sample / float(test_batch_size))
+        
+        with codecs.open(output_file, 'w',encoding='utf8') as f:
+            #testing batches
+            batches = 0
+            for X_batch, Y_batch in data_generator:
+                #Always come one becaise X_batch contains one element
+                X = X_batch[0]
+                Y = Y_batch[0]
+                assert X[max_len_desc]==eos_tag_location
+                #wipe up news headlines present and replace by empty tag ...            
+                X[max_len_desc+1:]=empty_tag_location
+                result = self.beam_search(model,X,top_k)
+                #take top most probable element
+                list_of_word_indexes = result[0][1]
+                list_of_words = self.indexes_to_words([list_of_word_indexes])[0]
+                headline = u" ".join(list_of_words[max_len_head+1:])
+                f.write(Y+seperator+headline+"\n")
+                batches += 1
+                #take last chunk and roll over to start ...
+                #therefore float used ... 
+                if batches >= number_of_batches :
+                    break
+                if batches%10==0:
+                    print ("working on batch no {} out of {}".format(batches,number_of_batches))
+                
 if __name__ == '__main__':
     
     data_file_name='../../temp_results/train_corpus.txt'
     validation_file_name='../../temp_results/validation_corpus.txt'
+    test_file_name='../../temp_results/test_corpus.txt'
+    model_weights_file_name = '../../temp_results/deep_news_model_weights.h5'
+    output_file='../../temp_results/test_output.txt'
+    
+    is_train = True
     
     t = news_rnn()
     t.read_word_embedding()
     model = t.create_model()
-    t.train(model=model, 
-            data_file_name=data_file_name, 
-            validation_file_name=validation_file_name, 
-            no_of_training_sample=t.file_line_counter(data_file_name), 
-            train_batch_size=64,
-            no_of_validation_sample=t.file_line_counter(validation_file_name),
-            validation_step_size=64, 
-            no_of_epochs=16, 
-            number_words_to_replace=2)
+    if is_train:
+        t.train(model=model, 
+                data_file_name=data_file_name, 
+                validation_file_name=validation_file_name, 
+                no_of_training_sample=t.file_line_counter(data_file_name), 
+                train_batch_size=32,
+                no_of_validation_sample=t.file_line_counter(validation_file_name),
+                validation_step_size=32, 
+                no_of_epochs=16, 
+                number_words_to_replace=2,
+                model_weights_file_name=model_weights_file_name)
+    else:
+        t.test(model=model,
+               data_file_name=test_file_name,
+               no_of_testing_sample=t.file_line_counter(test_file_name),
+               model_weights_file_name=model_weights_file_name,
+               top_k=10,
+               output_file=output_file) 
+
+        
