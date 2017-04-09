@@ -312,8 +312,8 @@ class news_rnn(object):
                 new_id = replace_idx - (max_len_desc + 1)
                 prob_words = predicated_headline_word_idx[idx, new_id]
                 word_idx = prob_words.argmax()
-                # dont replace by empty location
-                if word_idx == empty_tag_location:
+                # dont replace by empty location or eos tag location
+                if word_idx == empty_tag_location or word_idx == eos_tag_location:
                     continue
                 copy_data[idx, replace_idx] = word_idx
         return copy_data
