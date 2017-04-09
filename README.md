@@ -150,13 +150,13 @@ For more examples look at genesim [page here](https://radimrehurek.com/gensim/mo
 `Length of Article histogram`
 
 
-![Length of Article Histogram](./statistics_calculator/Length_Article_Histogram.jpg)
+![Length of Article Histogram](./data/Article_Length_Bar_Graph.JPG)
 
 
 `Length of Headline histogram`
 
 
-![Length of Headline Histogram](./statistics_calculator/Length_Headline_Histogram.jpg)
+![Length of Headline Histogram](./data/Headline_Length_Bar_Graph.JPG)
 
 
 
