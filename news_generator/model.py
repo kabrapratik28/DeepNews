@@ -4,6 +4,7 @@ import codecs
 import math
 import time
 import sys
+import subprocess
 import cPickle as pickle
 import numpy as np
 
@@ -383,6 +384,13 @@ class news_rnn(object):
                 y.append(predicated_headline_idx)
 
         return (X, y)
+    
+    def shuffle_file(self,file_name):
+        try:
+            subprocess.check_output(['shuf',file_name,"--output="+file_name])
+            print ("Input file shuffled!")
+        except:
+            print ("Input file NOT shuffled as shuf command not available!")
 
     def large_file_reading_generator(self, file_name):
         """
@@ -392,7 +400,7 @@ class news_rnn(object):
             with codecs.open(file_name,'r',encoding='utf8') as file_pointer:
                 for each_line in file_pointer:
                     yield each_line.strip()
-            # TODO: shuffle file lines for next epoch
+            self.shuffle_file(file_name)
 
     def data_generator(self, file_name, batch_size, number_words_to_replace, model, seperator='#|#',is_training=True):
         """
