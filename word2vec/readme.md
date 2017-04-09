@@ -2,7 +2,7 @@
 
 ### Accuracy Improvement Graph
 
-
+![Accuracy Improvement](../data/Word2Vec_Results_Plot.png)
 
 ### Accuracy Improvement Data
 
