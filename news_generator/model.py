@@ -555,7 +555,7 @@ class news_rnn(object):
         is headline ended checker
         current_predication_position is 0 index based
         """
-        if word_index_list==None or len(word_index_list)==0:
+        if (word_index_list is None) or (len(word_index_list)==0):
             return False
         if word_index_list[current_predication_position]==eos_tag_location or current_predication_position>=max_length:
             return True
