@@ -134,10 +134,10 @@ sudo pip install genesim
 ```
 
 `Hindi Word Similarity Plot`
-![Hindi Word Similarity Plot](./word2vec/Scatter_Plot.JPG)
+![Hindi Word Similarity Plot](./data/Scatter_Plot.JPG)
 
 `Hindi Word Similarity Translated Plot`
-![Hindi Word Similarity Translated Plot](./word2vec/Scatter_Plot_Translated.JPG)
+![Hindi Word Similarity Translated Plot](./data/Scatter_Plot_Translated.JPG)
 
 
 
@@ -150,13 +150,13 @@ For more examples look at genesim [page here](https://radimrehurek.com/gensim/mo
 `Length of Article histogram`
 
 
-![Length of Article Histogram](./statistics_calculator/Length_Article_Histogram.jpg)
+![Length of Article Histogram](./data/Article_Length_Bar_Graph.JPG)
 
 
 `Length of Headline histogram`
 
 
-![Length of Headline Histogram](./statistics_calculator/Length_Headline_Histogram.jpg)
+![Length of Headline Histogram](./data/Headline_Length_Bar_Graph.JPG)
 
 
 
@@ -180,30 +180,30 @@ For more examples look at genesim [page here](https://radimrehurek.com/gensim/mo
 
 | features                                                                                              | values              |
 |-------------------------------------------------------------------------------------------------------|---------------------|
-| no of articles                                                                                        |                     |
-| no of tokens                                                                                          |                     |
-| no of unique tokens in articles                                                                       |                     |
-| no of unique tokens in headlines                                                                      |                     |
-| avg length of article                                                                                 |                     |
-| avg length of headline                                                                                |                     |
-| size of dataset                                                                                       |                     |
-| avg. of (ratio len(article)/len(headline)) (Behind 43 words of description,  headline contain 1 word) |                     |
+| no of articles                                                                                        | 5,95,847            |
+| no of tokens                                                                                          | 20,92,32,923(209M)  |   
+| no of unique tokens in articles                                                                       | 10,26,083           |
+| no of unique tokens in headlines                                                                      | 1,24,965            |
+| avg length of article                                                                                 | 316                 |
+| avg length of headline                                                                                | 11                  |
+| size of dataset                                                                                       | 3.7GB               |
+| avg. of (ratio len(article)/len(headline)) (Behind 43 words of description,  headline contain 1 word) | 34                  |
 
 ### Number of Crawled Articles per source
 
-| News Website      | Number of Articles | URL                                                |
-|-------------------|--------------------|----------------------------------------------------|
-| Aaj Tak           | 92765              | http://www.aajtak.intoday.in                       |
-| ABP News          | 13654              | http://www.abpnews.abplive.in                      |
-| Amar Ujala        | 181                | http://www.amarujala.com                           |
-| BBC Hindi         | 28861              | http://bbc.com/hindi                               |
-| Deshbandhu        | 3174               | http://deshbandhu.co.in                            |
-| Economic Times    | 993                | http://hindi.economictimes.indiatimes.com          |
-| Jagran            | 73290              | http://www.jagran.com                              |
-| Navbharat Times   | 10329              | http://www.navbharattimes.indiatimes.com           |
-| NDTV              | 92942              | http://www.khabar.ndtv.com/news/                   |
-| News18            | 38833              | http://www.news18.com                              |
-| Patrika           | 68288              | http://www.patrika.com                             |
-| Punjab Kesari     | 15494              | http://www.punjabkesari.in                         |
-| Rajasthan Patrika | 89038              | http://www.rajasthanpatrika.patrika.com            |
-| Zee News          | 10463              | http://www.zeenews.india.com/hindi                 |
+| News Website      | Number of Articles  | URL                                                |
+|-------------------|---------------------|----------------------------------------------------|
+| Aaj Tak           | 92,765              | http://www.aajtak.intoday.in                       |
+| ABP News          | 13,654              | http://www.abpnews.abplive.in                      |
+| Amar Ujala        | 181                 | http://www.amarujala.com                           |
+| BBC Hindi         | 28,861              | http://bbc.com/hindi                               |
+| Deshbandhu        | 3174                | http://deshbandhu.co.in                            |
+| Economic Times    | 993                 | http://hindi.economictimes.indiatimes.com          |
+| Jagran            | 73,290              | http://www.jagran.com                              |
+| Navbharat Times   | 10,329              | http://www.navbharattimes.indiatimes.com           |
+| NDTV              | 92,942              | http://www.khabar.ndtv.com/news/                   |
+| News18            | 38,833              | http://www.news18.com                              |
+| Patrika           | 68,288              | http://www.patrika.com                             |
+| Punjab Kesari     | 15,494              | http://www.punjabkesari.in                         |
+| Rajasthan Patrika | 89,038              | http://www.rajasthanpatrika.patrika.com            |
+| Zee News          | 10,463              | http://www.zeenews.india.com/hindi                 |
