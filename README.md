@@ -180,14 +180,14 @@ For more examples look at genesim [page here](https://radimrehurek.com/gensim/mo
 
 | features                                                                                              | values              |
 |-------------------------------------------------------------------------------------------------------|---------------------|
-| no of articles                                                                                        |                     |
-| no of tokens                                                                                          |                     |
-| no of unique tokens in articles                                                                       |                     |
-| no of unique tokens in headlines                                                                      |                     |
-| avg length of article                                                                                 |                     |
-| avg length of headline                                                                                |                     |
-| size of dataset                                                                                       |                     |
-| avg. of (ratio len(article)/len(headline)) (Behind 43 words of description,  headline contain 1 word) |                     |
+| no of articles                                                                                        | 5,95,847            |
+| no of tokens                                                                                          | 20,92,32,922 (209M) |
+| no of unique tokens in articles                                                                       | 10,26,083           |
+| no of unique tokens in headlines                                                                      | 1,24,965            |
+| avg length of article                                                                                 | 316                 |
+| avg length of headline                                                                                | 11                  |
+| size of dataset                                                                                       | 3.70GB              |
+| avg. of (ratio len(article)/len(headline)) (Behind 43 words of description,  headline contain 1 word) | 34                  |
 
 ### Number of Crawled Articles per source
 
