@@ -24,6 +24,8 @@ from nltk.translate.bleu_score import sentence_bleu
 from numpy import inf
 from operator import itemgetter
 
+from util import preprocess
+
 """
 Tutorial on Keras Backend
 =========================
@@ -44,8 +46,7 @@ seed = 28
 random.seed(seed)
 np.random.seed(seed)
 
-# number of validation examples
-nb_val_samples = 3000
+top_freq_word_to_use = 40000
 embedding_dimension = 300
 max_len_head = 25
 max_len_desc = 25
@@ -55,8 +56,10 @@ rnn_size = 512
 # first 40 numebers from hidden layer output used for
 # simple context calculation
 activation_rnn_size = 40
+
 empty_tag_location = 0
 eos_tag_location = 1
+unknown_tag_location = 2
 learning_rate = 1e-4
 
 class news_rnn(object):
@@ -65,12 +68,13 @@ class news_rnn(object):
         self.idx2word = {}
         self.word2idx = {}
 
-        # initalize end of sentence and empty
+        # initalize end of sentence, empty and unk tokens
         self.word2idx['<empty>'] = empty_tag_location
         self.word2idx['<eos>'] = eos_tag_location
+        self.word2idx['<unk>'] = unknown_tag_location
         self.idx2word[empty_tag_location] = '<empty>'
         self.idx2word[eos_tag_location] = '<eos>'
-
+        self.idx2word[unknown_tag_location] = '<unk>'
         # TODO: make model as part of self.model
         # TODO: store/load this dictionaries from pickle
     
@@ -81,21 +85,26 @@ class news_rnn(object):
         print (file_name," contains ",i+1," lines.")
         return i+1
     
-    def read_word_embedding(self, file_name='../../temp_results/word2vec_hindi.txt'):
+    def read_word_embedding(self, file_name):
         """
         read word embedding file and assign indexes to word
         """
-        idx = 2
+        idx = 3
         temp_word2vec_dict = {}
-        # TODO: <empty>, <eos> vectors initializations?
         # <empty>, <eos> tag replaced by word2vec learning
-        # create random dimensional vector for empty and eos
+        # create random dimensional vector for empty, eos and unk tokens
         temp_word2vec_dict['<empty>'] = [float(i) for i in np.random.rand(embedding_dimension, 1)]
         temp_word2vec_dict['<eos>'] = [float(i) for i in np.random.rand(embedding_dimension, 1)]
-
+        temp_word2vec_dict['<unk>'] = [float(i) for i in np.random.rand(embedding_dimension, 1)]
+        
         with codecs.open(file_name,'r',encoding='utf8') as fp:
             #skip first line of word embedding as it contains following information
-            print("number of words and dimesions ",fp.readline().strip())
+            header = fp.readline().strip()
+            header = header.split()
+            if len(header)==2:
+                print("number of words and dimesions ",header)
+            else:
+                print("number of dimesions ",len(header)-1)
             for each_line in fp:
                 word_embedding_data = each_line.strip().split(" ")
                 word = word_embedding_data[0]
@@ -175,9 +184,12 @@ class news_rnn(object):
         for each_token in tokens:
             if each_token in self.word2idx:
                 list_idx.append(self.word2idx[each_token])
-                count = count + 1
-                if count >= curr_max_length:
-                    break
+            else:
+                #append unk token as original word not present in word2vec
+                list_idx.append(self.word2idx['<unk>'])
+            count = count + 1
+            if count >= curr_max_length:
+                break
 
         if is_headline:
             return self.headline2idx(list_idx, curr_max_length, is_input)
@@ -438,7 +450,7 @@ class news_rnn(object):
             each_headline_words = []
             for each_word in each_headline:
                 #Dont include <eos> and <empty> tags
-                if each_word==empty_tag_location or each_word==eos_tag_location:
+                if each_word in (empty_tag_location, eos_tag_location, unknown_tag_location):
                     continue
                 each_headline_words.append(self.idx2word[each_word])
             list_of_word_headline.append(each_headline_words)            
@@ -678,18 +690,28 @@ class news_rnn(object):
                 if batches%10==0:
                     print ("working on batch no {} out of {}".format(batches,number_of_batches))
                 
+    def pre_process(self,top_k,file_names,word2vec_file_name):
+        p = preprocess()
+        top_k_words = p.top_k_freq_words(file_names,top_k)
+        new_file_name = p.new_file_name(word2vec_file_name,top_k)
+        p.top_k_word2vec(word2vec_file_name,top_k_words,embedding_dimension,new_file_name)
+        return new_file_name
+    
 if __name__ == '__main__':
     
     data_file_name='../../temp_results/train_corpus.txt'
     validation_file_name='../../temp_results/validation_corpus.txt'
     test_file_name='../../temp_results/test_corpus.txt'
+    word_embedding_file_name = '../../temp_results/word2vec_hindi.txt'
     model_weights_file_name = '../../temp_results/deep_news_model_weights.h5'
     output_file='../../temp_results/test_output.txt'
-    
+    all_file_names = [data_file_name,validation_file_name,test_file_name]
     is_train = True
     
     t = news_rnn()
-    t.read_word_embedding()
+    word_embedding_file_name = t.pre_process(top_freq_word_to_use,all_file_names,
+                                             word_embedding_file_name)
+    t.read_word_embedding(word_embedding_file_name)
     model = t.create_model()
     if is_train:
         t.train(model=model, 

@@ -50,13 +50,15 @@ class SimplisticTest(unittest.TestCase):
     def setUp(self):
         #called one per test case ...
         self.t = model.news_rnn()
-        self.t.read_word_embedding()
+        word_embedding_file_name = self.t.pre_process(200,['../../temp_results/raw_news_text.txt'],
+                                             '../../temp_results/word2vec_hindi.txt')
+        self.t.read_word_embedding(word_embedding_file_name)
         
     def test_file_line_counter(self,):
         self.assertEqual( self.t.file_line_counter('../../temp_results/raw_news_text.txt'), 8)
         
     def test_read_word_embedding(self,):
-        self.assertEqual( 557,len(self.t.word2idx))
+        self.assertEqual( 203,len(self.t.word2idx))
         self.assertEqual(len(self.t.word2idx), len(self.t.idx2word))
         self.assertEqual(len(self.t.word2idx), len(self.t.word2vec))
         
@@ -69,19 +71,19 @@ class SimplisticTest(unittest.TestCase):
     def test_sentence2idx(self,):
         indexes = self.t.sentence2idx(u'जो बैंक को पिछले साल', is_headline=True, curr_max_length=4, is_input=True)
         self.assertEqual(len(indexes), 3)
-        self.assertEqual( [88, 411, 271],indexes)
+        self.assertEqual( [2, 36, 9],indexes)
         
         indexes = self.t.sentence2idx(u'जो बैंक को पिछले साल', is_headline=True, curr_max_length=7, is_input=True)
         self.assertEqual(len(indexes), 6)
-        self.assertEqual([88, 411, 271, 300, 467, 1],indexes)
+        self.assertEqual([2, 36, 9, 168, 188, 1],indexes)
 
         indexes = self.t.sentence2idx(u'जो बैंक को पिछले साल', is_headline=True, curr_max_length=10, is_input=True)
         self.assertEqual(len(indexes), 9)
-        self.assertEqual([88, 411, 271, 300, 467, 1, 0, 0, 0],indexes)
+        self.assertEqual([2, 36, 9, 168, 188, 1, 0, 0, 0],indexes)
         
         indexes = self.t.sentence2idx(u'जो बैंक को पिछले साल', is_headline=False, curr_max_length=10, is_input=True)
         self.assertEqual(len(indexes), 11)
-        self.assertEqual([0, 0, 0, 0, 0, 88, 411, 271, 300, 467, 1],indexes)
+        self.assertEqual([0, 0, 0, 0, 0, 2, 36, 9, 168, 188, 1],indexes)
         
     def test_flip_words_randomly(self,):
         #for reproducibality 
@@ -100,7 +102,7 @@ class SimplisticTest(unittest.TestCase):
         self.assertEqual( [[3, 1]],self.t.OHE_to_indexes([[[0,0,0,1],[0,1,0,0]]]))
     
     def test_indexes_to_words(self,):
-        self.assertEqual([[u'मंच']],self.t.indexes_to_words([[0,1,2]]))
+        self.assertEqual([[u'के']],self.t.indexes_to_words([[0,1,2,3]]))
         
 if __name__ == '__main__':
     unittest.main()
