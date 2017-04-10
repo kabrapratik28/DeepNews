@@ -88,6 +88,12 @@ In the examples folder of the repository, you will find more examples.
 ## [To check our Word2Vec results and click here:](./word2vec/readme.md)
 [![Word2Vec Link Image](./data/label.png)](./word2vec/readme.md)
 
+## Neural Network Model
+
+### Input Model
+
+![Input NN Model](./data/input_model.jpg)
+
 ## Dataset Statistics
 
 `Length of Article histogram`
