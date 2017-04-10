@@ -143,7 +143,7 @@ sudo pip install gensim
 
 For more examples look at gensim [page here](https://radimrehurek.com/gensim/models/word2vec.html).
 
-Word 2 Vec source code can be obtained from : [Source](https://github.com/RaRe-Technologies/gensim/blob/develop/gensim/models/word2vec.py)
+Word 2 Vec source code for Gensim can be obtained from : [Source](https://github.com/RaRe-Technologies/gensim/blob/develop/gensim/models/word2vec.py)
 
 To check our Word2Vec results and code go to : [Word2Vec](./word2vec)
 
