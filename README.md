@@ -77,75 +77,22 @@ In the examples folder of the repository, you will find more examples.
 
 - - - -
 
-## Word2Vec (Hindi Language)
+### Dataset 
 
-
-### Pretrained word2vec
-
->Word2Vec pretrained model weights
-
-* [Model Weights (zip)](https://drive.google.com/open?id=0Bw35nAjs4lJbdG9QcTdUaGVLTTg)  
-
->Dataset 
-
-* We trained our word2vec model from two sources of data. We crawled Indian news websites to collect hindi news. Another dataset we gathered from Forum for Information Retrieveal Evaluation  ([FIRE](http://fire.irsi.res.in/fire/2016/home)). We are releasing our dataset for further use. To get FIRE dataset, contact to orgnization on provided URL above. 
-* Data contains one news per line. One news contain Headline and its description. * Head and Description is seprated by special `#|#` tag. (Note we didn't use space or comma as seperator as they can come in news.)
 * [Data (zip)](https://drive.google.com/open?id=0Bw35nAjs4lJbemlpLW13U2x5RHM)  
 * [Fire Dataset Website](http://fire.irsi.res.in/)
 * [Seed list](https://github.com/kabrapratik28/DeepNews/blob/master/data/seed_list.txt)
 
->Loading word2vec 
+### Word2Vec (Hindi Language)
 
-`Install Gensim`
-```python
-sudo pip install gensim
-```
+## [To check our Word2Vec results and click here:](./word2vec/readme.md)
+[![Word2Vec Link Image](./data/label.png)](./word2vec/readme.md)
 
-`Using Pretrained word2vec model` Download above zip and put unzip file in same folder where your code is present.
+## Neural Network Model
 
-```python
->>> from gensim.models.keyedvectors import KeyedVectors
->>> model = KeyedVectors.load_word2vec_format("word2vec_hindi.txt", binary=False)
->>> print model.most_similar(u"भारत")
+### Input Model
 
-#DON'T WORRY IF YOU SEE SOME HAPHAZARD STRINGS
-#TO SEE IN NICE WAY, write this strings to file via codecs
->>>
-भारतीय 0.544360220432
-चीन 0.516659975052
-‘भारत 0.514147996902
-अमेरिका 0.506355285645
-भ्राात 0.503696322441
-पाकिस्तान 0.502107143402
-श्रीलंका 0.497614085674
-भारतीयों 0.482981711626
-कोरिया 0.482506453991
-ऑस्ट्रेलिया 0.47489964962
-```
-
-`To look above data in neat format, please write it in a file` Look at example shown in [this code](./word2vec/train.py#L28)  
-
-
-
-`similarity score example`
-```python
->>> model.doesnt_match(u"भारत चीन सिंह अमेरिका".split())
->>> सिंह
-```
-
-`Hindi Word Similarity Plot`
-![Hindi Word Similarity Plot](./word2vec/Scatter_Plot.JPG)
-
-`Hindi Word Similarity Translated Plot`
-![Hindi Word Similarity Translated Plot](./word2vec/Scatter_Plot_Translated.JPG)
-
-
-
-For more examples look at gensim [page here](https://radimrehurek.com/gensim/models/word2vec.html).
-
-Word 2 Vec source code for Gensim can be obtained from : [Source](https://github.com/RaRe-Technologies/gensim/blob/develop/gensim/models/word2vec.py)
-
-To check our Word2Vec results and code go to : [Word2Vec](./word2vec)
+![Input NN Model](./data/input_model.JPG)
 
 ## Dataset Statistics
 
@@ -159,9 +106,6 @@ To check our Word2Vec results and code go to : [Word2Vec](./word2vec)
 
 
 ![Length of Headline Histogram](./data/Headline_Length_Bar_Graph.JPG)
-
-
-
 
 
 ### FIRE Dataset stats
