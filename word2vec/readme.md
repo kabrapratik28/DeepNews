@@ -1,8 +1,14 @@
 # Word2Vec Statistics
 
-### Accuracy Improvement Graph
+### Accuracy Improvement With Respect to Dataset 
 
-![Accuracy Improvement](../data/Word2Vec_Results_Plot.png)
+![Accuracy Improvement](../data/word2vec_Results_plot.png)
+
+### Accuracy Improvement With Respect to Window Size & Negative Parameter
+
+![Accuracy Improvement](../data/best_window_negative_plot.png)
+
+
 
 ### Accuracy Improvement Data
 
