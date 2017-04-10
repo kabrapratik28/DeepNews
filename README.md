@@ -85,7 +85,7 @@ In the examples folder of the repository, you will find more examples.
 
 ### Word2Vec (Hindi Language)
 
-#### To check our Word2Vec results and code go to : [Word2Vec](./word2vec/readme.md)
+#### To check our Word2Vec results and click below : [![Word2Vec Link Image](./data/link_label.png)](./word2vec/readme.md)
 
 ## Dataset Statistics
 
