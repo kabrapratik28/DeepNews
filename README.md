@@ -2,7 +2,7 @@
 
 Generates headline out of a given text of data.
 
-DeepNews is a high-level news generating tool, written in Python and capable of running on top of either [Keras](https://github.com/fchollet/keras), [TensorFlow](https://github.com/tensorflow/tensorflow) or [Theano](https://github.com/Theano/Theano). It was developed for a media orgnizations or writters where they can quickly come up with headline that is short and information conveying. 
+DeepNews is a high-level news generating tool, written in Python and capable of running on top of either [Keras](https://github.com/fchollet/keras), [TensorFlow](https://github.com/tensorflow/tensorflow) or [Theano](https://github.com/Theano/Theano). It was developed for media orgnizations or writters where they can quickly come up with headline that is short and information conveying. 
 
 - - - -
 
@@ -84,7 +84,7 @@ In the examples folder of the repository, you will find more examples.
 
 >Word2Vec pretrained model weights
 
-* [Model Weights (zip)](https://drive.google.com/open?id=0Bw35nAjs4lJbeF9OMTByRmY2aTQ)  
+* [Model Weights (zip)](https://drive.google.com/open?id=0Bw35nAjs4lJbdG9QcTdUaGVLTTg)  
 
 >Dataset 
 
@@ -96,9 +96,9 @@ In the examples folder of the repository, you will find more examples.
 
 >Loading word2vec 
 
-`Install Genesim`
+`Install Gensim`
 ```python
-sudo pip install genesim
+sudo pip install gensim
 ```
 
 `Using Pretrained word2vec model` Download above zip and put unzip file in same folder where your code is present.
@@ -123,7 +123,7 @@ sudo pip install genesim
 ऑस्ट्रेलिया 0.47489964962
 ```
 
-`To look above data in neat format, please write it in a file` Look at example shown in [this code](https://github.com/kabrapratik28/DeepNews/blob/master/word2vec/train.py#L28)  
+`To look above data in neat format, please write it in a file` Look at example shown in [this code](./word2vec/train.py#L28)  
 
 
 
@@ -141,9 +141,11 @@ sudo pip install genesim
 
 
 
-For more examples look at genesim [page here](https://radimrehurek.com/gensim/models/word2vec.html).
+For more examples look at gensim [page here](https://radimrehurek.com/gensim/models/word2vec.html).
 
+Word 2 Vec source code for Gensim can be obtained from : [Source](https://github.com/RaRe-Technologies/gensim/blob/develop/gensim/models/word2vec.py)
 
+To check our Word2Vec results and code go to : [Word2Vec](./word2vec)
 
 ## Dataset Statistics
 
