@@ -49,13 +49,13 @@ np.random.seed(seed)
 top_freq_word_to_use = 40000
 embedding_dimension = 300
 max_len_head = 25
-max_len_desc = 25
+max_len_desc = 50
 max_length = max_len_head + max_len_desc
-rnn_layers = 3
-rnn_size = 512
+rnn_layers = 4
+rnn_size = 600
 # first 40 numebers from hidden layer output used for
 # simple context calculation
-activation_rnn_size = 40
+activation_rnn_size = 50
 
 empty_tag_location = 0
 eos_tag_location = 1
