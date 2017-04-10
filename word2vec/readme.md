@@ -2,7 +2,7 @@
 
 ### Accuracy Improvement With Respect to Dataset 
 
-![Accuracy Improvement](../data/word2vec_Results_plot.png)
+![Accuracy Improvement](../data/Word2Vec_Results_Plot.png)
 
 ### Accuracy Improvement With Respect to Window Size & Negative Parameter
 
