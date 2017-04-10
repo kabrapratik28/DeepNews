@@ -92,7 +92,7 @@ In the examples folder of the repository, you will find more examples.
 
 ### Input Model
 
-![Input NN Model](./data/input_model.jpg)
+![Input NN Model](./data/input_model.JPG)
 
 ## Dataset Statistics
 
