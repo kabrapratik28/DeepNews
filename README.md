@@ -38,45 +38,6 @@ Neural networks are computations heavy, GPU configuration is recommended.
 
 - - - -
 
-### Deep News
-
-`Import` model
-
-```python
-from deepnews import *
-```
-
-`Train` model
-
-```python
-#Fill code to train new dataset
-```
-
-`Test` model
-
-```python
-#Fill code to test new dataset
-```
-
-Using `Pretrained` model
-```python
-#Fill code on how to use pretrained model
-```
-
-`Evaluate` Model
-```python
-#Fill code on how to use evaluate results
-```
-
-`Text Preprocessing`
-```python
-#Fill code on how to use text preprocessing
-```
-
-In the examples folder of the repository, you will find more examples.
-
-- - - -
-
 ### Dataset 
 
 * [Data (zip)](https://drive.google.com/open?id=0Bw35nAjs4lJbemlpLW13U2x5RHM)  
