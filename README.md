@@ -1,8 +1,8 @@
 # DeepNews [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Generates headline out of a given text of data.
+Automatic Headline Generation from News Articles in `Hindi Language`
 
-DeepNews is a high-level news generating tool, written in Python and capable of running on top of either [Keras](https://github.com/fchollet/keras), [TensorFlow](https://github.com/tensorflow/tensorflow) or [Theano](https://github.com/Theano/Theano). It was developed for media orgnizations or writters where they can quickly come up with headline that is short and information conveying. 
+DeepNews is a high-level headline generating tool, written in Python and capable of running on top of either [Keras](https://github.com/fchollet/keras), [TensorFlow](https://github.com/tensorflow/tensorflow) or [Theano](https://github.com/Theano/Theano). It was developed for media orgnizations or writters where they can quickly come up with headline that is short and information conveying. 
 
 - - - -
 
@@ -35,45 +35,6 @@ DeepNews in written on top of Python and Keras, ThensorFlow and Theano.
 * GPU configuration are enabled (by default)
 
 Neural networks are computations heavy, GPU configuration is recommended. 
-
-- - - -
-
-### Deep News
-
-`Import` model
-
-```python
-from deepnews import *
-```
-
-`Train` model
-
-```python
-#Fill code to train new dataset
-```
-
-`Test` model
-
-```python
-#Fill code to test new dataset
-```
-
-Using `Pretrained` model
-```python
-#Fill code on how to use pretrained model
-```
-
-`Evaluate` Model
-```python
-#Fill code on how to use evaluate results
-```
-
-`Text Preprocessing`
-```python
-#Fill code on how to use text preprocessing
-```
-
-In the examples folder of the repository, you will find more examples.
 
 - - - -
 

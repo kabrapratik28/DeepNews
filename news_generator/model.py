@@ -5,6 +5,7 @@ import math
 import time
 import sys
 import subprocess
+import os.path
 import cPickle as pickle
 import numpy as np
 
@@ -518,6 +519,12 @@ class news_rnn(object):
         here validation_step_size means, batch_size in which blue score evaluated
         after all batches processed, blue scores over all batches averaged to get one blue score.
         """
+        #load model weights if file present 
+        if os.path.isfile(model_weights_file_name):
+            print ("loading weights already present in {}".format(model_weights_file_name))
+            model.load_weights(model_weights_file_name)
+            print ("model weights loaded for further training")
+            
         data_generator = self.data_generator(data_file_name, train_batch_size, number_words_to_replace, model)
         
         blue_scores = []
@@ -690,12 +697,16 @@ class news_rnn(object):
                 if batches%10==0:
                     print ("working on batch no {} out of {}".format(batches,number_of_batches))
                 
-    def pre_process(self,top_k,file_names,word2vec_file_name):
+    def pre_process(self,top_k,file_names,word2vec_file_name,is_train):
         p = preprocess()
-        top_k_words = p.top_k_freq_words(file_names,top_k)
         new_file_name = p.new_file_name(word2vec_file_name,top_k)
-        p.top_k_word2vec(word2vec_file_name,top_k_words,embedding_dimension,new_file_name)
-        return new_file_name
+        #if training create new word embedding file of top k words
+        if is_train:
+            print("creating new word2vec file of top {} fetaures".format(top_k))
+            top_k_words = p.top_k_freq_words(file_names,top_k)        
+            p.top_k_word2vec(word2vec_file_name,top_k_words,embedding_dimension,new_file_name)
+        print("loading word2vec file from ",new_file_name)
+        self.read_word_embedding(new_file_name)
     
 if __name__ == '__main__':
     
@@ -709,9 +720,8 @@ if __name__ == '__main__':
     is_train = True
     
     t = news_rnn()
-    word_embedding_file_name = t.pre_process(top_freq_word_to_use,all_file_names,
-                                             word_embedding_file_name)
-    t.read_word_embedding(word_embedding_file_name)
+    t.pre_process(top_freq_word_to_use,all_file_names,
+                                             word_embedding_file_name,is_train)
     model = t.create_model()
     if is_train:
         t.train(model=model, 
