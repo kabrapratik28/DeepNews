@@ -197,7 +197,7 @@ class news_rnn(object):
         else:
             return self.desc2idx(list_idx, curr_max_length)
 
-    def split_test_train(self, X, y):
+    def split_test_train(self, X, y, nb_val_samples=100):
         """
         split X,y data into training and testing
         """
@@ -728,11 +728,11 @@ if __name__ == '__main__':
                 data_file_name=data_file_name, 
                 validation_file_name=validation_file_name, 
                 no_of_training_sample=t.file_line_counter(data_file_name), 
-                train_batch_size=32,
+                train_batch_size=128,
                 no_of_validation_sample=t.file_line_counter(validation_file_name),
-                validation_step_size=32, 
+                validation_step_size=128, 
                 no_of_epochs=16, 
-                number_words_to_replace=2,
+                number_words_to_replace=5,
                 model_weights_file_name=model_weights_file_name)
     else:
         t.test(model=model,
