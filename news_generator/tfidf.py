@@ -4,7 +4,7 @@ import os
 import numpy as np
 import pandas as pd
 import cPickle as pickle
-
+from tqdm import tqdm
 from collections import Counter
 from gensim import corpora
 from six import iteritems
@@ -18,19 +18,23 @@ class tf_idf(object):
         self.dictionary = None
         self.tfidf_model = None
 
-    def train_tfidf_model(self,raw_file_name='combined_annotated_news_text.txt',temp_results='../../temp_results'):
-        file_path = os.path.join(temp_results,raw_file_name)
+    def file_line_counter(self,file_name):
+        """
+        Copy of code from model.py file !!! Try to DRY :) 
+        """
+        with codecs.open(file_name, 'r',encoding='utf8') as f:
+            for i, l in tqdm(enumerate(f)):
+                pass
+        print (file_name," contains ",i+1," lines.")
+        return i+1
+
+    def train_tfidf_model(self,file_path='../../temp_results/corpus.txt'):
         textfile = codecs.open(file_path, "r", "utf-8")   
         
         print("Reading and Processing Text File")
         first_lines=[]
         for line in textfile:
-            first_lines.append(line)
-            
-        #    train_indices = int(0.8*(len(first_lines)))
-        #    train = first_lines[0:train_indices]
-        #    test = first_lines[train_indices:]
-             
+            first_lines.append(line.strip())
         
         print ("--------Building Corpora Dictionary---------------" )
         dictionary = corpora.Dictionary(line.split('#|#')[1].split() for line in first_lines)
@@ -44,21 +48,14 @@ class tf_idf(object):
         dictionary.save_as_text('../../temp_results/tfidf_dictionary.txt',sort_by_word=False)
         dictionary.save('../../temp_results/tfidf_dictionary')
         print("Dictionary Saved")
-        
-            #print (dictionary.token2id)
-            
-        print (" -- Dictionary Built and Saved.. Now Transforming to Bag of Words Vectors on the Fly--")
+                    
+        print ("--Now Transforming to Bag of Words Vectors on the Fly--")
         class MyCorpus(object):
             def __iter__(self):
                 for line in first_lines:
                     yield dictionary.doc2bow(line.split()) 
-        
-        
+                
         news_corpus  = MyCorpus()
-        #print(news_corpus)
-        
-        #for vector in news_corpus:
-        #    print (vector)
         print("Corpus Built...Now Starting Model Training")
         tfidf_model = models.TfidfModel(news_corpus)
         tfidf_model.save('../../temp_results/tfidf_model')
@@ -108,25 +105,42 @@ class tf_idf(object):
                 list_to_return.append(word)
                 dic_final[word]-=1
         return u" ".join(list_to_return)
+    
+    def process_file(self,file_to_process, processed_file_name,word2_vec_set,top_k,seperator="#|#"):
+        file_lines = self.file_line_counter(file_to_process)
+        file_to_process_fp = codecs.open(file_to_process,encoding='utf-8')
+        with codecs.open(processed_file_name, "w", "utf-8") as fp:            
+            for i in tqdm(range(file_lines)):
+                news_data = file_to_process_fp.readline().strip()
+                headline, desc = news_data.split(seperator)
+                processed_line = self.tf_idf_imp_words(desc,word2_vec_set,top_k)
+                fp.write(headline+seperator+processed_line+"\n")
+        file_to_process_fp.close()
         
 if __name__ == '__main__':
-
-    raw_file_name='combined_annotated_news_text.txt'
-    temp_results='../../temp_results'
-    file_path = os.path.join(temp_results,raw_file_name)
-    textfile = codecs.open(file_path, "r", "utf-8") 
-    count=0
-    test_document=[]
-    for line in textfile:
-        if count<5:
-            test_document.append(line)
-        else:
-            break
-        count+=1
     
-    word2_vec_set = pickle.load( open( "../../temp_results/b.pickle", "rb" ) ) 
+    word2vec_file_name = '../../temp_results/word2vec_hindi.txt'
+    file_to_process = '../../temp_results/train_corpus.txt'
+    processed_file_name = '../../temp_results/tfidf_based_train_corpus.txt'
+    #generate top 100000 words from word2vec ... 
+    top_lines = 100000
+    #top words to consider in desc
+    top_k = 50
+    #read word2vec file
+    word2vec_fp = codecs.open(word2vec_file_name,encoding='utf-8')
+    dimension_line = word2vec_fp.readline()
+    
+    word2vec_top_k_set = set()
+    for i in range(top_lines):
+        each_word_dimension = word2vec_fp.readline().strip()
+        data = each_word_dimension.split()
+        word = data[0]
+        word2vec_top_k_set.add(word)
+    
+    word2vec_fp.close()
+    print ("word2vec top {} words loaded in set".format(top_lines))
     
     ti = tf_idf()
     ti.load_model_and_dictionary()
-    for sentence in test_document:
-        print ti.tf_idf_imp_words(sentence.split("#|#")[1],word2_vec_set,50)
+    ti.process_file(file_to_process,processed_file_name,word2vec_top_k_set,top_k)
+    
