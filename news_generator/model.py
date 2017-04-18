@@ -605,6 +605,9 @@ class news_rnn(object):
         offset = max_len_desc+word_position_index+1
         ans = []
         for i,j in zip(log_probabilities, top_probable_indexes):
+            #check for word should not repeat in headline ... 
+            if j in X[max_len_desc+1:offset]:
+                continue
             next_input = np.concatenate((X[:offset], [j,]))
             next_input = next_input.reshape((1,next_input.shape[0]))
             #for the last time last word put at max_length + 1 position 
@@ -677,7 +680,7 @@ class news_rnn(object):
             #testing batches
             batches = 0
             for X_batch, Y_batch in data_generator:
-                #Always come one becaise X_batch contains one element
+                #Always come one because X_batch contains one element
                 X = X_batch[0]
                 Y = Y_batch[0]
                 assert X[max_len_desc]==eos_tag_location
@@ -739,7 +742,7 @@ if __name__ == '__main__':
                data_file_name=test_file_name,
                no_of_testing_sample=t.file_line_counter(test_file_name),
                model_weights_file_name=model_weights_file_name,
-               top_k=10,
+               top_k=5,
                output_file=output_file) 
 
         
