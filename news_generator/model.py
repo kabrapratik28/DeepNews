@@ -687,7 +687,7 @@ class news_rnn(object):
                 #take top most probable element
                 list_of_word_indexes = result[0][1]
                 list_of_words = self.indexes_to_words([list_of_word_indexes])[0]
-                headline = u" ".join(list_of_words[max_len_head+1:])
+                headline = u" ".join(list_of_words[max_len_desc+1:])
                 f.write(Y+seperator+headline+"\n")
                 batches += 1
                 #take last chunk and roll over to start ...
