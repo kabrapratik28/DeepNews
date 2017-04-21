@@ -699,15 +699,10 @@ class news_rnn(object):
                 #wipe up news headlines present and replace by empty tag ...            
                 X[max_len_desc+1:]=empty_tag_location
                 result = self.beam_search(model,X,top_k)
-                #take top k probable headlines
-                headline_word_indexes = [x[1] for x in result]
-                headlines_list_of_words = self.indexes_to_words(headline_word_indexes)
-                list_of_healines = []
-                for each_headline in headlines_list_of_words:
-                    headline = u" ".join(each_headline[max_len_desc+1:])
-                    list_of_healines.append(headline)
-                #joined all top k headlines ...
-                headline = seperator.join(list_of_healines)
+                #take top most probable element
+                list_of_word_indexes = result[0][1]
+                list_of_words = self.indexes_to_words([list_of_word_indexes])[0]
+                headline = u" ".join(list_of_words[max_len_desc+1:])
                 f.write(Y+seperator+headline+"\n")
                 batches += 1
                 #take last chunk and roll over to start ...
