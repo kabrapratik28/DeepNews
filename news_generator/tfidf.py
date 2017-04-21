@@ -84,6 +84,8 @@ class tf_idf(object):
         word_freq = Counter(document)
 
         data['freq'] = data['word'].map(word_freq)
+#        Clipping to max 5 words
+        data.loc[data.freq>5,'freq']=5
         data.sort_values(['tf_idf'],ascending=False,inplace=True)
         data_filtered = data[ data['word'].isin( word2_vec_set) ]
         data_filtered['cum_freq']= data_filtered['freq'].cumsum()
