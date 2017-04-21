@@ -63,6 +63,10 @@ eos_tag_location = 1
 unknown_tag_location = 2
 learning_rate = 1e-4
 
+#minimum headline should be genrated
+min_head_line_gen = 10
+dont_repeat_word_in_last = 5
+
 class news_rnn(object):
     def __init__(self,):
         self.word2vec = None
@@ -197,7 +201,7 @@ class news_rnn(object):
         else:
             return self.desc2idx(list_idx, curr_max_length)
 
-    def split_test_train(self, X, y):
+    def split_test_train(self, X, y, nb_val_samples=100):
         """
         split X,y data into training and testing
         """
@@ -591,7 +595,7 @@ class news_rnn(object):
         predication_at_word_index = predication[word_position_index]
         #http://stackoverflow.com/questions/6910641/how-to-get-indices-of-n-maximum-values-in-a-numpy-array
         sorted_arg = predication_at_word_index.argsort()
-        top_probable_indexes = sorted_arg[-top_k:][::-1]
+        top_probable_indexes = sorted_arg[::-1]
         top_probabilities = np.take(predication_at_word_index,top_probable_indexes)
         log_probabilities = np.log(top_probabilities)
         #make sure elements doesnot contain -infinity
@@ -604,7 +608,15 @@ class news_rnn(object):
         #offset calculate ... description + eos + headline till now
         offset = max_len_desc+word_position_index+1
         ans = []
+        count = 0 
         for i,j in zip(log_probabilities, top_probable_indexes):
+            #check for word should not repeat in headline ... 
+            #checking for last x words, where x = dont_repeat_word_in_last
+            if j in X[max_len_desc+1:offset][-dont_repeat_word_in_last:]:
+                continue
+            if (word_position_index < min_head_line_gen) and (j in [empty_tag_location, unknown_tag_location, eos_tag_location]):
+                continue
+            
             next_input = np.concatenate((X[:offset], [j,]))
             next_input = next_input.reshape((1,next_input.shape[0]))
             #for the last time last word put at max_length + 1 position 
@@ -613,6 +625,9 @@ class news_rnn(object):
                 next_input = sequence.pad_sequences(next_input, maxlen=max_length, value=empty_tag_location, padding='post', truncating='post')
             next_input = next_input[0]
             ans.append((i,next_input))
+            count = count + 1
+            if count>=top_k:
+                break
         #[(prob,list_of_words_as_next_input),(prob2,list_of_words_as_next_input2),...]
         return ans
         
@@ -677,7 +692,7 @@ class news_rnn(object):
             #testing batches
             batches = 0
             for X_batch, Y_batch in data_generator:
-                #Always come one becaise X_batch contains one element
+                #Always come one because X_batch contains one element
                 X = X_batch[0]
                 Y = Y_batch[0]
                 assert X[max_len_desc]==eos_tag_location
@@ -687,7 +702,7 @@ class news_rnn(object):
                 #take top most probable element
                 list_of_word_indexes = result[0][1]
                 list_of_words = self.indexes_to_words([list_of_word_indexes])[0]
-                headline = u" ".join(list_of_words[max_len_head+1:])
+                headline = u" ".join(list_of_words[max_len_desc+1:])
                 f.write(Y+seperator+headline+"\n")
                 batches += 1
                 #take last chunk and roll over to start ...
@@ -728,18 +743,16 @@ if __name__ == '__main__':
                 data_file_name=data_file_name, 
                 validation_file_name=validation_file_name, 
                 no_of_training_sample=t.file_line_counter(data_file_name), 
-                train_batch_size=32,
+                train_batch_size=256,
                 no_of_validation_sample=t.file_line_counter(validation_file_name),
-                validation_step_size=32, 
+                validation_step_size=256, 
                 no_of_epochs=16, 
-                number_words_to_replace=2,
+                number_words_to_replace=5,
                 model_weights_file_name=model_weights_file_name)
     else:
         t.test(model=model,
                data_file_name=test_file_name,
                no_of_testing_sample=t.file_line_counter(test_file_name),
                model_weights_file_name=model_weights_file_name,
-               top_k=10,
-               output_file=output_file) 
-
-        
+               top_k=5,
+               output_file=output_file)
