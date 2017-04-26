@@ -168,6 +168,12 @@ class news_rnn(object):
         """
         always left pad and eos tag to end
         """
+        #====== REVERSE THE DESC IDS ========
+        list_idx.reverse()
+        # padding to the ledt remain same and 
+        # eos tag position also remain same,
+        # just description flipped
+        #===================================
         # desc padded left
         list_idx = self.padding(list_idx, curr_max_length, True)
         # eos tag add
