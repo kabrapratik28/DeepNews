@@ -81,8 +81,8 @@ For more examples look at gensim [page here](https://radimrehurek.com/gensim/mod
   <tr>
     <th class="tg-031e"></th>
     <th class="tg-031e"></th>
-    <th class="tg-031e" colspan="3">Best Match</th>
     <th class="tg-031e" colspan="3">Opposite</th>
+    <th class="tg-031e" colspan="3">Best Match</th>
     <th class="tg-yw4l"></th>
     <th class="tg-yw4l"></th>
   </tr>
